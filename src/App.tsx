@@ -35,11 +35,11 @@ function App() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    let example = getRandomItem(examples.situationsHypothetiques);
+    let example: any = getRandomItem(examples.situationsHypothetiques);
 
     // example: Si SUJET (avoir) plus de temps, SUJET (lire) davantage.
     let sentence = example?.sentence || "";
-    const subject = getRandomItem(example?.sujet || []) || "";
+    const subject: string = getRandomItem(example?.sujet || []) || "";
     setSubject(subject);
 
     let sentenceWithSujet = sentence
