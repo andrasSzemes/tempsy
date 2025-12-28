@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import styled from 'styled-components';
 import { useVerbs } from "../contexts/useVerbs";
 import { useCombinaison } from "../hooks/useCombinaison";
-import VerbSelector from "./VerbSelector";
+import VerbSelector from "./verbSelector/VerbSelector";
 
 const irregularVerbs = [
   'avoir', 'être', 'faire', 'mettre', 'prendre', 'dire', 'écrire', 'voir', 'pouvoir', 'vouloir', 'savoir', 'connaître', 'venir', 'devoir', 'croire', 'boire', 'lire', 'vivre', 'recevoir', 'ouvrir', 'offrir', 'naître', 'mourir', 'tenir', 'suivre', 'rire', 'plaire', 'falloir', 'valoir', 'pleuvoir', 'apprendre', 'comprendre', 'surprendre', 'découvrir', 'souffrir', 'conduire', 'produire', 'traduire', 'atteindre', 'craindre', 'éteindre', 'joindre', 'peindre', 'clore', 'inclure', 'cuire', 'resoudre', 'absoudre'
@@ -12,10 +13,58 @@ const reflexiveVerbs = ['se lever', 'se coucher', 's’habiller', 'se laver', 's
 const COIverbsÀ = [ 'appartenir', 'convenir', 'demander', 'dire', 'donner', 'écrire', 'emprunter', 'envoyer', 'offrir', 'parler', 'plaire', 'poser', 'prêter', 'proposer', 'raconter', 'rappeler', 'répondre', 'ressembler', 'souhaiter', 'téléphoner'];
 const targetY = [ 'assister', 'croire', 'faire attention', 'jouer', 'obéir', 'participer', 'penser', 'réfléchir', 'répondre', 'réussir', 's’intéresser', 'tenir' ];
 const targetEn = [ 'avoir besoin', 'avoir envie', 'avoir peur', 'dépendre', 'discuter', 'entendre parler', 'manquer', 'parler', 'profiter', 'rêver', 'se souvenir', 's’occuper', 'se passer' ];
+const Add = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+  font-style: italic;
+  padding: 16px 27px;
+  background-color: #242424;
+
+  &:hover {
+    background-color: #3a3a3a;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  &:active {
+    background-color: #414141;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  }
+`;
+
+const Arrow = styled.div`
+  font-style: normal;
+  font-size: 27px;
+  color: #d1b48c;
+  margin-top: -6px;
+  margin-bottom: -12px;
+  transition: transform 0.2s ease;
+
+  ${Add}:hover & {
+    transform: translateX(4px);
+  }
+`;
+
+const AddContainer = styled.div`
+  padding: 0px 4px 0px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  margin-left: -40px;
+`;
 
 function LearningSpace() {
     const [tense, setTense] = useState('passé composé');
-    const { availableVerbs, decreaseCount } = useVerbs();
+    const { availableVerbs, /*decreaseCount */ addSelectedVerbs } = useVerbs();
     const { verb, conjuguatedVerbWithSubject, phraseToShow, subject, nextCombinaison } = useCombinaison(tense, availableVerbs);
 
     // program states
@@ -57,7 +106,7 @@ function LearningSpace() {
                 if (conjuguatedVerbWithSubject == inputRef.current.value.toLowerCase()) {
                     setIsRight(true);
                     if (verb) {
-                        decreaseCount(verb);
+                        // decreaseCount(verb);
                     }
                     setTimeout(() => {
                         nextCombinaison();
@@ -81,31 +130,51 @@ function LearningSpace() {
     const secondPart = phraseToShow.split(')')[1];
 
     return (
-        <>
-            <VerbSelector/>
-            <div style={{ flex: 1, justifyContent: 'center', display: 'flex', alignItems: 'center' }}>
-                {verb ? (
-                <div className="phrase">
-                    <div>{firstPart}</div>
-                    <div className="activePartContainer">
-                    <div className="replace">{!isRight ? subject + ', ' + verb : '‎'}</div>
-                    <div>
-                        <input
-                        className={isRight == null ? '' : (isRight ? 'right' : 'wrong')}
-                        type="text"
-                        ref={inputRef}
-                        onKeyDown={handleKeyDown}
-                        />
-                    </div>
-                    </div>
-                    <div>{secondPart}</div>
+      <>
+        <VerbSelector />
+        <AddContainer>
+          <Add onClick={() => addSelectedVerbs()}>
+            <div>Click to add</div>
+            <div>for practice</div>
+            <Arrow>➤</Arrow>
+          </Add>
+        </AddContainer>
+        <div
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          {verb ? (
+            <div className="phrase">
+              <div>{firstPart}</div>
+              <div className="activePartContainer">
+                <div className="replace">
+                  {!isRight ? subject + ', ' + verb : '‎'}
                 </div>
-                ) : (
-                <div style={{padding: '2em', color: 'gray'}}>Please select at least one verb.</div>
-                )}
+                <div>
+                  <input
+                    className={
+                      isRight == null ? '' : isRight ? 'right' : 'wrong'
+                    }
+                    type="text"
+                    ref={inputRef}
+                    onKeyDown={handleKeyDown}
+                  />
+                </div>
+              </div>
+              <div>{secondPart}</div>
             </div>
-        </>
-  );
+          ) : (
+            <div style={{ padding: '2em', color: 'gray' }}>
+              Please select at least one verb.
+            </div>
+          )}
+        </div>
+      </>
+    );
 }
 
 export default LearningSpace

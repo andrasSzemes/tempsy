@@ -5,11 +5,15 @@ import { conjugaisonPasseCompose } from "../sencetcePieces/passeCompose/conjugai
 // Define the shape of the verbs context
 interface VerbsContextType {
   checkedVerbs: { [verb: string]: boolean };
-  setCheckedVerbs: React.Dispatch<React.SetStateAction<{ [verb: string]: boolean }>>;
-  verbCounters: { [verb: string]: number };
-  setVerbCounters: React.Dispatch<React.SetStateAction<{ [verb: string]: number }>>;
+  // verbCounters: { [verb: string]: number };
+  // setVerbCounters: React.Dispatch<React.SetStateAction<{ [verb: string]: number }>>;
   availableVerbs: string[];
-  decreaseCount: (verb: string) => void;
+  setAllCheckStatus: (checked: boolean) => void;
+  toggleVerbList: (verbs: string[]) => void;
+  forceSelectVerbList: (verbs: string[]) => void;
+  toggleVerb: (verb: string) => void;
+  // decreaseCount: (verb: string) => void;
+  addSelectedVerbs: (tasks: string[]) => void;
 }
 
 // Create the context with a default value
@@ -17,20 +21,80 @@ const VerbsContext = createContext<VerbsContextType | undefined>(undefined);
 
 // Provider component
 export const VerbsProvider = ({ children }: { children: ReactNode }) => {
+    const [taskList, setTaskList] = useState([]);
+
+    function addSelectedVerbs() {
+        const tasks = Object.keys(conjugaisonPasseCompose).filter(verb => checkedVerbs[verb]);
+        setTaskList((prevTasks) => [...prevTasks, ...tasks]);
+    }
+
+    console.log("taskList", taskList);
+
     const [checkedVerbs, setCheckedVerbs] = useState<{ [verb: string]: boolean }>(
         Object.fromEntries(Object.keys(conjugaisonPasseCompose).map(verb => [verb, true]))
     );
-    const [verbCounters, setVerbCounters] = useState<{ [verb: string]: number }>(
-        Object.fromEntries(Object.keys(conjugaisonPasseCompose).map(verb => [verb, 3]))
-    );
+    // const [verbCounters, setVerbCounters] = useState<{ [verb: string]: number }>(
+    //     Object.fromEntries(Object.keys(conjugaisonPasseCompose).map(verb => [verb, 3]))
+    // );
 
-    const availableVerbs = Object.keys(checkedVerbs).filter(v => checkedVerbs[v] && verbCounters[v] > 0);
-    const decreaseCount = (verb: string) => {
-        setVerbCounters(prev => ({...prev, [verb]: Math.max(0, (prev[verb] || 0) - 1)}));
+    const availableVerbs = Object.keys(checkedVerbs).filter(v => checkedVerbs[v]);
+    // const decreaseCount = (verb: string) => {
+    //     setVerbCounters(prev => ({...prev, [verb]: Math.max(0, (prev[verb] || 0) - 1)}));
+    // };
+
+    const setAllCheckStatus = (checked: boolean) => {
+        setCheckedVerbs(
+            Object.fromEntries(
+                Object.keys(conjugaisonPasseCompose).map((verb) => [verb, checked])
+            )
+        );
     };
 
+    const forceSelectVerbList = (verbs: string[]) => {
+        setCheckedVerbs((prev) => {
+            // Set all verbs to false
+            const updated = Object.fromEntries(
+                Object.keys(conjugaisonPasseCompose).map((verb) => [verb, false])
+            );
+            // Then set only the provided verbs to true
+            verbs.forEach((v) => {
+                if (v in updated) updated[v] = true;
+            });
+            return updated;
+        });
+    }
+
+    const toggleVerbList = (verbs: string[]) => {
+        const allSelected = verbs.every((v) => checkedVerbs[v]);
+        setCheckedVerbs((prev) => {
+            const updated = { ...prev };
+            verbs.forEach((v) => {
+                if (v in updated) updated[v] = !allSelected;
+            });
+            return updated;
+        });
+    };
+
+    const toggleVerb = (verb: string) => {
+            setCheckedVerbs((prev) => ({
+                ...prev,
+                [verb]: !prev[verb]
+            }));
+        };
+
     return (
-      <VerbsContext.Provider value={{ checkedVerbs, setCheckedVerbs, verbCounters, setVerbCounters, availableVerbs, decreaseCount }}>
+      <VerbsContext.Provider value={{
+        checkedVerbs,
+        // verbCounters,
+        toggleVerb,
+        // setVerbCounters,
+        availableVerbs,
+        setAllCheckStatus,
+        toggleVerbList,
+        forceSelectVerbList,
+        // decreaseCount
+        addSelectedVerbs
+        }}>
         {children}
       </VerbsContext.Provider>
     );
