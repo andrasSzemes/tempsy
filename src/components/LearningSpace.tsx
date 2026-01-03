@@ -4,15 +4,6 @@ import { useVerbs } from "../contexts/useVerbs";
 import { useCombinaison } from "../hooks/useCombinaison";
 import VerbSelector from "./verbSelector/VerbSelector";
 
-const irregularVerbs = [
-  'avoir', 'être', 'faire', 'mettre', 'prendre', 'dire', 'écrire', 'voir', 'pouvoir', 'vouloir', 'savoir', 'connaître', 'venir', 'devoir', 'croire', 'boire', 'lire', 'vivre', 'recevoir', 'ouvrir', 'offrir', 'naître', 'mourir', 'tenir', 'suivre', 'rire', 'plaire', 'falloir', 'valoir', 'pleuvoir', 'apprendre', 'comprendre', 'surprendre', 'découvrir', 'souffrir', 'conduire', 'produire', 'traduire', 'atteindre', 'craindre', 'éteindre', 'joindre', 'peindre', 'clore', 'inclure', 'cuire', 'resoudre', 'absoudre'
-];
-
-const reflexiveVerbs = ['se lever', 'se coucher', 's’habiller', 'se laver', 'se brosser', 'se réveiller', 'se reposer', 'se dépêcher', 'se souvenir de', 'se rendre compte de', 's’intéresser à', 's’ennuyer', 'se fâcher', 'se tromper', 'se taire', 's’asseoir', 's’entendre avec', 'se disputer (avec)', 'se marier (avec)', 'se divorcer', 'se battre', 's’en aller', 'se rendre', 'se servir de', 's’apercevoir de', 'se douter de', 'se passer de', 'se trouver', 'se mettre à', 'se faire à', 'se demander', 'se plaindre de', 'se voir', 's’imaginer', 's’efforcer de', 's’évanouir', 's’indigner', 's’apercevoir que', 's’épanouir', 's’en sortir', 's’attendre à', 's’interroger sur', 'se heurter à', 'se méfier de', 'se replier sur soi-même', 'se raviser', 'se débrouiller', 'se réconcilier', 'se précipiter', 'se figurer'];
-
-const COIverbsÀ = [ 'appartenir', 'convenir', 'demander', 'dire', 'donner', 'écrire', 'emprunter', 'envoyer', 'offrir', 'parler', 'plaire', 'poser', 'prêter', 'proposer', 'raconter', 'rappeler', 'répondre', 'ressembler', 'souhaiter', 'téléphoner'];
-const targetY = [ 'assister', 'croire', 'faire attention', 'jouer', 'obéir', 'participer', 'penser', 'réfléchir', 'répondre', 'réussir', 's’intéresser', 'tenir' ];
-const targetEn = [ 'avoir besoin', 'avoir envie', 'avoir peur', 'dépendre', 'discuter', 'entendre parler', 'manquer', 'parler', 'profiter', 'rêver', 'se souvenir', 's’occuper', 'se passer' ];
 const Add = styled.div`
   display: flex;
   flex-direction: column;
@@ -60,6 +51,40 @@ const AddContainer = styled.div`
   justify-content: center;
   height: 100%;
   margin-left: -40px;
+`;
+
+const MainContent = styled.div`
+  flex: 1;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+`;
+
+const Phrase = styled.div`
+  display: flex;
+  align-items: end;
+`;
+
+const ActivePartContainer = styled.div`
+  margin: 0px 5px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const Replace = styled.div`
+  font-style: italic;
+`;
+
+const StyledInput = styled.input<{ $isRight: boolean | null }>`
+  color: ${props => 
+    props.$isRight === null ? 'inherit' : 
+    props.$isRight ? 'green' : 'red'
+  };
+`;
+
+const NoVerbsMessage = styled.div`
+  padding: 2em;
+  color: gray;
 `;
 
 function LearningSpace() {
@@ -139,40 +164,31 @@ function LearningSpace() {
             <Arrow>➤</Arrow>
           </Add>
         </AddContainer>
-        <div
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
+        <MainContent>
           {verb ? (
-            <div className="phrase">
+            <Phrase>
               <div>{firstPart}</div>
-              <div className="activePartContainer">
-                <div className="replace">
+              <ActivePartContainer>
+                <Replace>
                   {!isRight ? subject + ', ' + verb : '‎'}
-                </div>
+                </Replace>
                 <div>
-                  <input
-                    className={
-                      isRight == null ? '' : isRight ? 'right' : 'wrong'
-                    }
+                  <StyledInput
+                    $isRight={isRight}
                     type="text"
                     ref={inputRef}
                     onKeyDown={handleKeyDown}
                   />
                 </div>
-              </div>
+              </ActivePartContainer>
               <div>{secondPart}</div>
-            </div>
+            </Phrase>
           ) : (
-            <div style={{ padding: '2em', color: 'gray' }}>
+            <NoVerbsMessage>
               Please select at least one verb.
-            </div>
+            </NoVerbsMessage>
           )}
-        </div>
+        </MainContent>
       </>
     );
 }

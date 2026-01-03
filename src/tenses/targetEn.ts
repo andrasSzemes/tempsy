@@ -1,0 +1,15 @@
+const targetEn = [
+  'avoir besoin',
+  'avoir envie',
+  'avoir peur',
+  'dépendre',
+  'discuter',
+  'entendre parler',
+  'manquer',
+  'parler',
+  'profiter',
+  'rêver',
+  'se souvenir',
+  's’occuper',
+  'se passer',
+];
