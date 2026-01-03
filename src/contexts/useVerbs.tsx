@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
-import { conjugaisonPasseCompose } from "../sencetcePieces/passeCompose/conjugaison";
+import { conjugaisonPasseCompose } from "../tenses/passeCompose/conjugaison";
 
 // Define the shape of the verbs context
 interface VerbsContextType {
@@ -13,7 +13,7 @@ interface VerbsContextType {
   forceSelectVerbList: (verbs: string[]) => void;
   toggleVerb: (verb: string) => void;
   // decreaseCount: (verb: string) => void;
-  addSelectedVerbs: (tasks: string[]) => void;
+  addSelectedVerbs: () => void;
 }
 
 // Create the context with a default value

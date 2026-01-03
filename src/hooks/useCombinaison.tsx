@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
-import { sentencePasseCompose } from "../sencetcePieces/passeCompose/context";
-import { timeMarkerPasseCompose } from "../sencetcePieces/passeCompose/timeMarker";
-import { conjugaisonPasseCompose } from "../sencetcePieces/passeCompose/conjugaison";
+import { sentencePasseCompose } from "../tenses/passeCompose/context";
+import { timeMarkerPasseCompose } from "../tenses/passeCompose/timeMarker";
+import { conjugaisonPasseCompose } from "../tenses/passeCompose/conjugaison";
 
 function getRandomItem<T>(array: T[]): T {
   const index = Math.floor(Math.random() * array.length);

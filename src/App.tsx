@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { examples, conjugaison } from './assets/conditionel';
+import { examples, conjugaison } from './tenses/conditionel/conditionel';
 import './App.css'
-import Passe from './passe/Passe';
+import Passe from './_maybe-usefull-later/Passe';
 import LearningSpace from './components/LearningSpace';
 import { VerbsProvider } from './contexts/useVerbs';
 
@@ -112,31 +112,6 @@ function App() {
       <VerbsProvider>
         <LearningSpace/>
       </VerbsProvider>
-
-
-
-      {/* <div>
-        <div>Hypothèse sur le présent ou le futur: Si + imparfait → conditionnel présent</div>
-        <div>Hypothèse sur le passé (irréalisée): Si + plus-que-parfait → conditionnel passé</div>
-        <div>Hypothèse plus probable (réelle ou réalisable): Si + présent → futur simple (ou impératif ou présent)</div>
-      </div>
-      <br />
-      <div className="phrase">
-        <div>{firstPart}</div>
-        <div className="activePartContainer">
-          <div className="replace">{activePart.verb}</div>
-          <div>
-            <input
-              className={activePart.wrong ? "wrong" : (activePart.right ? "right" : "")}
-              type="text"
-              ref={inputRef}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-        </div>
-        <div>{secondPart}</div>
-      </div> */}
-      {/* <div>{sensenteWithSujetConjugated}</div> */}
     </>
   );
 }

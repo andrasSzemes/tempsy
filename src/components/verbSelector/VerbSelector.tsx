@@ -1,6 +1,6 @@
 import 'styled-components';
 import styled from 'styled-components';
-import { conjugaisonPasseCompose } from '../../sencetcePieces/passeCompose/conjugaison';
+import { conjugaisonPasseCompose } from '../../tenses/passeCompose/conjugaison';
 import { useVerbs } from '../../contexts/useVerbs';
 import SelectAllCheckbox from './SelectAllCheckbox';
 import IrregularVerbsButton from './IrregularVerbsButton';

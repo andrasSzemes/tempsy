@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useVerbs } from '../../contexts/useVerbs';
-import irregularVerbs from '../../tenses/irregularVerbs';
+import irregularVerbs from '../../tenses/passeCompose/irregularVerbs';
 
 const ButtonWrapper = styled.div`
   display: flex;
