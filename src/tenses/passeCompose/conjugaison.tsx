@@ -707,7 +707,7 @@ export const conjugaisonPasseCompose: Record<string, Record<string, string>> = {
     'ils': 'ils se sont assis',
     'elles': 'elles se sont assises'
   },
-  's’entendre avec': {
+  's’entendre': {
     'je': 'je me suis entendu',
     'tu': 'tu t’es entendu',
     'il': 'il s’est entendu',
@@ -718,7 +718,7 @@ export const conjugaisonPasseCompose: Record<string, Record<string, string>> = {
     'ils': 'ils se sont entendus',
     'elles': 'elles se sont entendues'
   },
-  'se disputer (avec)': {
+  'se disputer': {
     'je': 'je me suis disputé',
     'tu': 'tu t’es disputé',
     'il': 'il s’est disputé',
@@ -729,7 +729,7 @@ export const conjugaisonPasseCompose: Record<string, Record<string, string>> = {
     'ils': 'ils se sont disputés',
     'elles': 'elles se sont disputées'
   },
-  'se marier (avec)': {
+  'se marier': {
     'je': 'je me suis marié',
     'tu': 'tu t’es marié',
     'il': 'il s’est marié',

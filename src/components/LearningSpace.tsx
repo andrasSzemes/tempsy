@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import styled from 'styled-components';
 import { useVerbs } from "../contexts/useVerbs";
-import { useCombinaison } from "../hooks/useCombinaison";
 import VerbSelector from "./verbSelector/VerbSelector";
+import PhraseExercise from "./PhraseExercise";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const Add = styled.div`
   display: flex;
@@ -44,6 +45,7 @@ const Arrow = styled.div`
 `;
 
 const AddContainer = styled.div`
+  position: relative;
   padding: 0px 4px 0px 18px;
   display: flex;
   flex-direction: column;
@@ -55,109 +57,29 @@ const AddContainer = styled.div`
 
 const MainContent = styled.div`
   flex: 1;
-  justify-content: center;
   display: flex;
   align-items: center;
-`;
-
-const Phrase = styled.div`
-  display: flex;
-  align-items: end;
-`;
-
-const ActivePartContainer = styled.div`
-  margin: 0px 5px;
-  display: flex;
   flex-direction: column;
-`;
-
-const Replace = styled.div`
-  font-style: italic;
-`;
-
-const StyledInput = styled.input<{ $isRight: boolean | null }>`
-  color: ${props => 
-    props.$isRight === null ? 'inherit' : 
-    props.$isRight ? 'green' : 'red'
-  };
+  overflow-y: auto;
+  padding: 16px;
 `;
 
 const NoVerbsMessage = styled.div`
   padding: 2em;
   color: gray;
+  margin: auto;
 `;
 
 function LearningSpace() {
-    const [tense, setTense] = useState('passé composé');
-    const { availableVerbs, /*decreaseCount */ addSelectedVerbs } = useVerbs();
-    const { verb, conjuguatedVerbWithSubject, phraseToShow, subject, nextCombinaison } = useCombinaison(tense, availableVerbs);
-
-    // program states
-    const [isRight, setIsRight] = useState<null | boolean>(null);
-    const [numOfTentatives, setNumOfTentatives] = useState(0);
-
-    const inputRef = useRef<HTMLInputElement>(null);
-
-    useEffect(() => {
-        inputRef.current?.focus();
-    }, []);
-
-    useEffect(() => {
-        if (numOfTentatives >= 3 && inputRef.current) {
-            inputRef.current.value = conjuguatedVerbWithSubject;
-            setIsRight(true);
-        }
-    }, [numOfTentatives]);
-
-    useEffect(() => {
-        if (availableVerbs.length > 0 && !availableVerbs.includes(verb || '')) {
-            nextCombinaison();
-            setIsRight(null);
-            setNumOfTentatives(0);
-            if (inputRef?.current) {
-                inputRef.current.value = "";
-            }
-        }
-        if (availableVerbs.length === 0) {
-            nextCombinaison();
-            setIsRight(null);
-            setNumOfTentatives(0);
-        }
-    }, [availableVerbs]);
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && inputRef.current) {
-            if (inputRef.current.value.length > 0) {
-                if (conjuguatedVerbWithSubject == inputRef.current.value.toLowerCase()) {
-                    setIsRight(true);
-                    if (verb) {
-                        // decreaseCount(verb);
-                    }
-                    setTimeout(() => {
-                        nextCombinaison();
-                        setIsRight(null);
-                        setNumOfTentatives(0);
-                        if (inputRef?.current) {
-                            inputRef.current.value = "";
-                        }
-                    }, 1000);
-                } else {
-                    setNumOfTentatives(current => current + 1)
-                    setIsRight(false);
-                }
-            } else {
-                setNumOfTentatives(current => current + 1)
-            }
-        }
-    };
-
-    const firstPart = phraseToShow.split('(')[0];
-    const secondPart = phraseToShow.split(')')[1];
+    const { availableVerbs, addSelectedVerbs, taskList, emptyTaskList } = useVerbs();
 
     return (
       <>
         <VerbSelector />
         <AddContainer>
+          {taskList.length > 0 && (
+            <DeleteIcon sx={{ position: 'absolute', top: 16, cursor: 'pointer', color: '#d1b48c' }} onClick={() => emptyTaskList()} />
+          )}
           <Add onClick={() => addSelectedVerbs()}>
             <div>Click to add</div>
             <div>for practice</div>
@@ -165,27 +87,22 @@ function LearningSpace() {
           </Add>
         </AddContainer>
         <MainContent>
-          {verb ? (
-            <Phrase>
-              <div>{firstPart}</div>
-              <ActivePartContainer>
-                <Replace>
-                  {!isRight ? subject + ', ' + verb : '‎'}
-                </Replace>
-                <div>
-                  <StyledInput
-                    $isRight={isRight}
-                    type="text"
-                    ref={inputRef}
-                    onKeyDown={handleKeyDown}
-                  />
-                </div>
-              </ActivePartContainer>
-              <div>{secondPart}</div>
-            </Phrase>
+          {taskList.length > 0 ? (
+            taskList.map((task, index) => (
+              <PhraseExercise
+                isSelected={false}
+                key={`${task.verb}-${index}`}
+                phraseToShow={task.phraseToShow}
+                verb={task.verb}
+                subject={task.subject}
+                conjuguatedVerbWithSubject={task.conjuguatedVerbWithSubject}
+                nextCombinaison={() => {}}
+                availableVerbs={availableVerbs}
+              />
+            ))
           ) : (
             <NoVerbsMessage>
-              Please select at least one verb.
+              Select verbs to practice from the selector on the left.
             </NoVerbsMessage>
           )}
         </MainContent>

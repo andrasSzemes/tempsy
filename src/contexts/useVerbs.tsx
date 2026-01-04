@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import { conjugaisonPasseCompose } from "../tenses/passeCompose/conjugaison";
+import { generateAllCombinaisons, type Combinaison } from "../hooks/useAllCombinaisons";
 
 // Define the shape of the verbs context
 interface VerbsContextType {
@@ -8,12 +9,16 @@ interface VerbsContextType {
   // verbCounters: { [verb: string]: number };
   // setVerbCounters: React.Dispatch<React.SetStateAction<{ [verb: string]: number }>>;
   availableVerbs: string[];
+  selectedTense: string;
+  setSelectedTense: (tense: string) => void;
   setAllCheckStatus: (checked: boolean) => void;
   toggleVerbList: (verbs: string[]) => void;
   forceSelectVerbList: (verbs: string[]) => void;
   toggleVerb: (verb: string) => void;
   // decreaseCount: (verb: string) => void;
   addSelectedVerbs: () => void;
+  taskList: Combinaison[];
+  emptyTaskList: () => void;
 }
 
 // Create the context with a default value
@@ -21,26 +26,25 @@ const VerbsContext = createContext<VerbsContextType | undefined>(undefined);
 
 // Provider component
 export const VerbsProvider = ({ children }: { children: ReactNode }) => {
-    const [taskList, setTaskList] = useState([]);
+    const [taskList, setTaskList] = useState<Combinaison[]>([]);
+    const [selectedTense, setSelectedTense] = useState<string>("passé composé");
 
     function addSelectedVerbs() {
-        const tasks = Object.keys(conjugaisonPasseCompose).filter(verb => checkedVerbs[verb]);
+        const tasks = generateAllCombinaisons(selectedTense, availableVerbs);
         setTaskList((prevTasks) => [...prevTasks, ...tasks]);
+    }
+
+    function emptyTaskList() {
+        setTaskList([]);
     }
 
     console.log("taskList", taskList);
 
     const [checkedVerbs, setCheckedVerbs] = useState<{ [verb: string]: boolean }>(
-        Object.fromEntries(Object.keys(conjugaisonPasseCompose).map(verb => [verb, true]))
+        Object.fromEntries(Object.keys(conjugaisonPasseCompose).map((verb, index) => [verb, index < 3]))
     );
-    // const [verbCounters, setVerbCounters] = useState<{ [verb: string]: number }>(
-    //     Object.fromEntries(Object.keys(conjugaisonPasseCompose).map(verb => [verb, 3]))
-    // );
 
     const availableVerbs = Object.keys(checkedVerbs).filter(v => checkedVerbs[v]);
-    // const decreaseCount = (verb: string) => {
-    //     setVerbCounters(prev => ({...prev, [verb]: Math.max(0, (prev[verb] || 0) - 1)}));
-    // };
 
     const setAllCheckStatus = (checked: boolean) => {
         setCheckedVerbs(
@@ -89,11 +93,15 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
         toggleVerb,
         // setVerbCounters,
         availableVerbs,
+        selectedTense,
+        setSelectedTense,
         setAllCheckStatus,
         toggleVerbList,
         forceSelectVerbList,
         // decreaseCount
-        addSelectedVerbs
+        addSelectedVerbs,
+        taskList,
+        emptyTaskList
         }}>
         {children}
       </VerbsContext.Provider>
