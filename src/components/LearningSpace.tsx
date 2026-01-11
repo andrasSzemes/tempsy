@@ -70,11 +70,17 @@ const NoVerbsMessage = styled.div`
   margin: auto;
 `;
 
+const Container = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
+`;
+
 function LearningSpace() {
     const { availableVerbs, addSelectedVerbs, taskList, emptyTaskList } = useVerbs();
 
     return (
-      <>
+      <Container>
         <VerbSelector />
         <AddContainer>
           {taskList.length > 0 && (
@@ -91,12 +97,11 @@ function LearningSpace() {
             taskList.map((task, index) => (
               <PhraseExercise
                 isSelected={false}
-                key={`${task.verb}-${index}`}
+                key={task.id}
                 phraseToShow={task.phraseToShow}
                 verb={task.verb}
                 subject={task.subject}
                 conjuguatedVerbWithSubject={task.conjuguatedVerbWithSubject}
-                nextCombinaison={() => {}}
                 availableVerbs={availableVerbs}
               />
             ))
@@ -106,7 +111,7 @@ function LearningSpace() {
             </NoVerbsMessage>
           )}
         </MainContent>
-      </>
+      </Container>
     );
 }
 

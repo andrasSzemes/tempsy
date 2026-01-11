@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { useVerbs } from '../contexts/useVerbs';
 
-const Phrase = styled.div`
+const Phrase = styled.div<{ onClick?: () => void; $isRight?: boolean | null }>`
   display: flex;
   align-items: end;
   margin: 32px 0px;
+  cursor: ${props => props.onClick && props.$isRight !== true ? 'pointer' : 'default'};
 `;
 
 const ActivePartContainer = styled.div`
@@ -44,9 +46,14 @@ interface PhraseExerciseProps {
   verb: string;
   subject: string;
   conjuguatedVerbWithSubject: string;
-  nextCombinaison: () => void;
   availableVerbs: string[];
+  taskId?: string;
+  numOfTentatives?: number;
+  isRight?: boolean | null;
+  onClick?: () => void;
 }
+
+const capitalizeFirst = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
 function PhraseExercise({
   isSelected,
@@ -54,15 +61,21 @@ function PhraseExercise({
   verb,
   subject,
   conjuguatedVerbWithSubject,
-  nextCombinaison,
   availableVerbs,
+  taskId,
+  numOfTentatives = 0,
+  isRight = null,
+  onClick,
 }: PhraseExerciseProps) {
-  const [isRight, setIsRight] = useState<null | boolean>(null);
-  const [numOfTentatives, setNumOfTentatives] = useState(0);
+  const { updateTaskAttempts, updateTaskIsRight } = useVerbs();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const firstPart = phraseToShow.split('(')[0];
   const secondPart = phraseToShow.split(')')[1];
+  
+  const displayConjugation = firstPart === '' 
+    ? capitalizeFirst(conjuguatedVerbWithSubject)
+    : conjuguatedVerbWithSubject;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -71,25 +84,9 @@ function PhraseExercise({
   useEffect(() => {
     if (numOfTentatives >= 3 && inputRef.current) {
       inputRef.current.value = conjuguatedVerbWithSubject;
-      setIsRight(true);
+      if (taskId) updateTaskIsRight(taskId, true);
     }
-  }, [numOfTentatives, conjuguatedVerbWithSubject]);
-
-  useEffect(() => {
-    if (availableVerbs.length > 0 && !availableVerbs.includes(verb || '')) {
-      nextCombinaison();
-      setIsRight(null);
-      setNumOfTentatives(0);
-      if (inputRef?.current) {
-        inputRef.current.value = '';
-      }
-    }
-    if (availableVerbs.length === 0) {
-      nextCombinaison();
-      setIsRight(null);
-      setNumOfTentatives(0);
-    }
-  }, [availableVerbs, verb, nextCombinaison]);
+  }, [numOfTentatives, conjuguatedVerbWithSubject, taskId, updateTaskIsRight]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && inputRef.current) {
@@ -97,37 +94,51 @@ function PhraseExercise({
         if (
           conjuguatedVerbWithSubject == inputRef.current.value.toLowerCase()
         ) {
-          setIsRight(true);
+          if (taskId) updateTaskIsRight(taskId, true);
           setTimeout(() => {
-            nextCombinaison();
-            setIsRight(null);
-            setNumOfTentatives(0);
-            if (inputRef?.current) {
-              inputRef.current.value = '';
-            }
+            // nextCombinaison();
+            // TODO CHECK IF WORKS
+
+
+            // if (taskId) {
+            //   updateTaskIsRight(taskId, null);
+            //   updateTaskAttempts(taskId, 0);
+            // }
+            // if (inputRef?.current) {
+            //   inputRef.current.value = '';
+            // }
           }, 1000);
         } else {
-          setNumOfTentatives((current) => current + 1);
-          setIsRight(false);
+          if (taskId) {
+            updateTaskAttempts(taskId, numOfTentatives + 1);
+            updateTaskIsRight(taskId, false);
+          }
         }
       } else {
-        setNumOfTentatives((current) => current + 1);
+        if (taskId) updateTaskAttempts(taskId, numOfTentatives + 1);
       }
     }
   };
 
   return (
-    <Phrase>
+    <Phrase onClick={isRight === true ? undefined : onClick} $isRight={isRight}>
       <div>{firstPart}</div>
 
-      {!isSelected && (
+      {isRight && (
+        <CollapsedReplace>
+          <div style={{color: 'green'}}>{displayConjugation}</div>
+          <TenseLabel>passé composé</TenseLabel>
+        </CollapsedReplace>
+      )}
+
+      {!isRight && !isSelected && (
         <CollapsedReplace>
           <div>({!isRight ? subject + ', ' + verb : '‎'})</div>
           <TenseLabel>passé composé</TenseLabel>
         </CollapsedReplace>
       )}
 
-      {isSelected && (
+      {!isRight && isSelected && (
         <ActivePartContainer>
           <Replace>{!isRight ? subject + ', ' + verb : '‎'}</Replace>
           <div>

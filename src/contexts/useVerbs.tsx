@@ -6,8 +6,6 @@ import { generateAllCombinaisons, type Combinaison } from "../hooks/useAllCombin
 // Define the shape of the verbs context
 interface VerbsContextType {
   checkedVerbs: { [verb: string]: boolean };
-  // verbCounters: { [verb: string]: number };
-  // setVerbCounters: React.Dispatch<React.SetStateAction<{ [verb: string]: number }>>;
   availableVerbs: string[];
   selectedTense: string;
   setSelectedTense: (tense: string) => void;
@@ -15,10 +13,11 @@ interface VerbsContextType {
   toggleVerbList: (verbs: string[]) => void;
   forceSelectVerbList: (verbs: string[]) => void;
   toggleVerb: (verb: string) => void;
-  // decreaseCount: (verb: string) => void;
   addSelectedVerbs: () => void;
   taskList: Combinaison[];
   emptyTaskList: () => void;
+  updateTaskAttempts: (taskId: string, numOfTentatives: number) => void;
+  updateTaskIsRight: (taskId: string, isRight: boolean | null) => void;
 }
 
 // Create the context with a default value
@@ -36,6 +35,22 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
 
     function emptyTaskList() {
         setTaskList([]);
+    }
+
+    function updateTaskAttempts(taskId: string, numOfTentatives: number) {
+        setTaskList((prevTasks) =>
+            prevTasks.map((task) =>
+                task.id === taskId ? { ...task, numOfTentatives } : task
+            )
+        );
+    }
+
+    function updateTaskIsRight(taskId: string, isRight: boolean | null) {
+        setTaskList((prevTasks) =>
+            prevTasks.map((task) =>
+                task.id === taskId ? { ...task, isRight } : task
+            )
+        );
     }
 
     console.log("taskList", taskList);
@@ -89,19 +104,18 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
     return (
       <VerbsContext.Provider value={{
         checkedVerbs,
-        // verbCounters,
         toggleVerb,
-        // setVerbCounters,
         availableVerbs,
         selectedTense,
         setSelectedTense,
         setAllCheckStatus,
         toggleVerbList,
         forceSelectVerbList,
-        // decreaseCount
         addSelectedVerbs,
         taskList,
-        emptyTaskList
+        emptyTaskList,
+        updateTaskAttempts,
+        updateTaskIsRight
         }}>
         {children}
       </VerbsContext.Provider>

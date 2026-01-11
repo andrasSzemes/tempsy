@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { examples, conjugaison } from './tenses/conditionel/conditionel';
 import './App.css'
 import Passe from './_maybe-usefull-later/Passe';
 import LearningSpace from './components/LearningSpace';
+import Study from './components/Study';
+import Login from './components/Login';
+import MasterLayout from './components/MasterLayout';
 import { VerbsProvider } from './contexts/useVerbs';
 
 
@@ -110,7 +114,15 @@ function App() {
     <>
       {/* <Passe/> */}
       <VerbsProvider>
-        <LearningSpace/>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<MasterLayout />}>
+              <Route path="/" element={<LearningSpace/>} />
+              <Route path="/study" element={<Study/>} />
+              <Route path="/login" element={<Login/>} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
       </VerbsProvider>
     </>
   );

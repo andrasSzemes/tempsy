@@ -45,6 +45,8 @@ export interface Combinaison {
   conjuguatedVerbWithSubject: string;
   subject: string;
   phraseToShow: string;
+  numOfTentatives: number;
+  isRight: boolean | null;
 }
 
 /**
@@ -85,6 +87,8 @@ export function generateAllCombinaisons(tense: string, verbs: string[]): Combina
         conjuguatedVerbWithSubject,
         subject,
         phraseToShow,
+        numOfTentatives: 0,
+        isRight: null,
       };
     });
 }
