@@ -35,8 +35,17 @@ function Study() {
     const currentTaskIsRight = currentTask?.isRight === true;
     
     if (!currentTaskExists || currentTaskIsRight) {
-      const firstIncompleteTask = taskList.find(task => task.isRight !== true);
-      setSelectedTaskId(firstIncompleteTask ? firstIncompleteTask.id : null);
+      const currentIndex = taskList.findIndex(task => task.id === selectedTaskId);
+      
+      // Try to find next incomplete task after current position
+      let nextIncompleteTask = taskList.slice(currentIndex + 1).find(task => task.isRight !== true);
+      
+      // If no task after, try to find previous incomplete task
+      if (!nextIncompleteTask && currentIndex > 0) {
+        nextIncompleteTask = taskList.slice(0, currentIndex).reverse().find(task => task.isRight !== true);
+      }
+      
+      setSelectedTaskId(nextIncompleteTask ? nextIncompleteTask.id : null);
     }
   }, [taskList, selectedTaskId]);
 

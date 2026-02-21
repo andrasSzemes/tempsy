@@ -1,0 +1,197 @@
+\documentclass[12pt,a4paper]{report}
+
+% Essential packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[magyar]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Page layout
+\geometry{
+    left=3cm,
+    right=2.5cm,
+    top=2.5cm,
+    bottom=2.5cm
+}
+
+% Line spacing
+\onehalfspacing
+
+% Code listing settings
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny,
+    frame=single,
+    breaklines=true
+}
+
+% Hyperlink settings
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+% Dokumentum információk
+\title{A szakdolgozat címe}
+\author{Név}
+\date{\today}
+
+\begin{document}
+
+% Chapter format - number and title on same line
+\makeatletter
+\def\@makechapterhead#1{%
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+        \huge\bfseries \thechapter.\space #1\par\nobreak
+    \else
+        \huge\bfseries #1\par\nobreak
+    \fi
+    \vskip 20\p@
+  }}
+\makeatother
+
+% Title page
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\LARGE\bfseries Egyetem Neve\par}
+    \vspace{1cm}
+    {\Large Kar/Tanszék Neve\par}
+    \vspace{2cm}
+    
+    {\Huge\bfseries A szakdolgozat címe\par}
+    \vspace{2cm}
+    
+    {\Large Alapszakos Szakdolgozat\par}
+    \vspace{3cm}
+    
+    {\large
+    \begin{tabular}{rl}
+        Készítette: & Név \\
+        Neptun kód: & Azonosító \\
+        Témavezető: & Témavezető neve \\
+        Társ-témavezető: & Társ-témavezető neve (ha van) \\
+    \end{tabular}
+    \par}
+    
+    \vfill
+    {\large Budapest, \today\par}
+\end{titlepage}
+
+% Kivonat
+\begin{abstract}
+Ide kerül a kivonat. A kivonat a szakdolgozat rövid összefoglalása (általában 150-300 szó), amely tartalmazza a problémafelvetést, a módszertant, a főbb eredményeket és a következtetéseket.
+\end{abstract}
+
+% Table of contents
+\tableofcontents
+\newpage
+
+% List of figures (optional, comment out if not needed)
+\listoffigures
+\newpage
+
+% List of tables (optional, comment out if not needed)
+\listoftables
+\newpage
+
+% Fő tartalom kezdődik
+\chapter{Bevezetés}
+\label{ch:bevezetes}
+
+Itt mutasd be a témádat. Magyarázd el a kontextust, a motivációt és a szakdolgozat célkitűzéseit.
+
+\section{Háttér}
+Ismertesd a téma hátterét és előzményeit.
+
+\section{Problémafelvetés}
+Fogalmazd meg egyértelműen a vizsgált problémát.
+
+\section{Célkitűzések}
+Sorold fel a kutatási célokat és célkitűzéseket.
+
+\section{A dolgozat felépítése}
+Röviden írd le a szakdolgozat szerkezetét.
+
+\chapter{Irodalomkutatás}
+\label{ch:irodalomkutatas}
+
+Itt mutasd be a témához kapcsolódó szakirodalmat és korábbi kutatásokat.
+
+\chapter{Tervezés és megvalósítás}
+\label{ch:tervezes}
+
+\section{Architektúra}
+
+Ebben a fejezetben az alkalmazás megvalósítása során alkalmazott technológiákat, valamint a rendszer felépítését mutatom be. Az architektúra kialakításánál fontos szempont volt a bővíthetőség -- például új igeidők bevezetésével -- valamint a kliens- és szerveroldali logika egyértelmű szétválasztása.
+
+\subsection{Alkalmazott technológiák}
+
+Az alkalmazás kliensoldali része a React keretrendszerre épül, és TypeScript nyelven készült. A TypeScript használata biztosítja, hogy az igeragozások, gyakorlási eredmények és API-kommunikáció során használt objektumok típushelyesek legyenek már fordítási időben. A típusosság csökkenti a futásidejű hibák esélyét, valamint növeli a kód olvashatóságát és karbantarthatóságát.
+
+Kliens oldalon a globális állapot kezelésére a React által biztosított Context API került alkalmazásra. Ez a megoldás elegendő az alkalmazás számára, mivel a központi állapotot (bejelentkezés, aktuális feladatsor, gyakorlási beállítások) kevesebb mint 10 komponens osztja meg, így az állapotváltozásokkal járó újrarenderelés nem okoz teljesítményproblémát. Komplexebb megoldás akkor lenne indokolt, ha az alkalmazás jelentősen nagyobb számú komponens között osztaná meg az állapotot (Redux: 100+, Zustand 10-50), vagy ha a szerver kommunikációt központi logikával kellene kezelni minden komponens számára (Redux, React Query).
+
+A kliens és szerver közötti kommunikáció HTTP alapú REST API-n keresztül valósul meg, JSON formátumú adatcserével. A felhasználói autentikáció JWT (JSON Web Token) alapú: sikeres bejelentkezést követően a szerver egy tokent állít elő, amelyet a kliens minden további kéréshez csatol, így azonosítva magát a védett végpontok elérésekor.
+
+A szerveroldali alkalmazás Node.js környezetben fut, szintén TypeScript nyelven. A React--Node.js párosítás előnye, hogy ugyanazt a nyelvet lehet használni a kliens- és szerveroldalon is, így a típusdefiníciókat (például API válaszformátumok, adatmodellek) közösen lehet használni mindkét rétegben. A Node.js eseményvezérelt, nem blokkoló működési modellje hatékonyan kezeli a párhuzamos klienskéréseket.
+
+Az adatok perzisztens tárolását egy PostgreSQL relációs adatbázis biztosítja. Az adatbázis-kezelés során natív SQL lekérdezések kerültek alkalmazásra, nem pedig ORM keretrendszer. Az alkalmazás egyszerű adatbázis-sémával rendelkezik, azonban a statisztikai aggregációk (például gyakorlási eredmények kiértékelése) hatékonyabban megvalósíthatók natív SQL-ben, például Common Table Expressions alkalmazásával.
+
+\subsection{Az alkalmazás rétegei}
+
+Az alkalmazás full-stack jellegéből adódóan a kliensoldali megjelenítés és a szerveroldali üzleti logika elkülönül. A szerveroldali rendszer egy jól strukturált, többrétegű architektúrát követ, amely elősegíti a kód karbantarthatóságát és tesztelhetőségét.
+
+A szerveroldali alkalmazás az alábbi fő rétegekre bontható:
+
+\begin{itemize}
+    \item \textbf{Controller réteg}: Ez a réteg felelős a kliens felől érkező HTTP kérések fogadásáért és a válaszok visszaküldéséért. Itt kerülnek definiálásra az alkalmazás REST végpontjai, például a felhasználói regisztrációhoz és bejelentkezéshez, a gyakorlófeladatok összeállításához, valamint a statisztikák lekérdezéséhez kapcsolódó útvonalak. A controller réteg tartalmazza az egyszerűbb üzleti logikát is, míg a komplexebb algoritmusokat (például feladatgenerálás, teljesítményelemzés) a service réteg valósítja meg.
+    
+    \item \textbf{Service réteg}: Ez a réteg tartalmazza az alkalmazás komplexebb üzleti logikai blokkjait, amelyek tesztelhetőség vagy újrafelhasználhatóság miatt külön komponensekbe kerültek. Ide tartozik például a véletlenszerű mondatképzés algoritmusa, a felhasználói teljesítmény alapján történő gyakorlólista-összeállítás, valamint az eldöntés, hogy egy adott ragozás továbbra is gyakorlásra szorul-e. Nem minden logika került service rétegbe: az egyszerűbb műveletek közvetlenül a controllerekben maradtak.
+    
+    \item \textbf{Repository / Data access réteg}: Ez a réteg biztosítja az adatbázissal való közvetlen kapcsolatot. A repository komponensek tartalmazzák az SQL lekérdezéseket, amelyek a PostgreSQL adatbázison hajtódnak végre. A réteg feladata az adatok lekérdezése, módosítása és mentése, miközben elrejti az adatbázis-kezelés részleteit a service és controller rétegek elől.
+    
+    \item \textbf{Model réteg}: A model réteg TypeScript interfészek formájában írja le az alkalmazás fő adatstruktúráit. Ide tartoznak többek között a felhasználók, az igék, az igeidők, valamint a gyakorlási próbálkozások reprezentációi. Ezek az interfészek biztosítják az adatbázisból érkező adatok típusbiztos kezelését a TypeScript környezetben.
+\end{itemize}
+
+A bemutatott architektúra lehetővé teszi az alkalmazás fokozatos bővítését, új igeidők, statisztikai mutatók vagy exportálási funkciók hozzáadását anélkül, hogy a meglévő rendszer jelentős átalakításra szorulna.
+
+\chapter{Eredmények}
+\label{ch:eredmenyek}
+
+Itt mutasd be az alkalmazás működését, teszteredményeket és felhasználói visszajelzéseket.
+
+\chapter{Konklúzió}
+\label{ch:konkluzio}
+
+Foglald össze a munkád eredményeit, értékeld a célok elérését, és vázold fel a jövőbeli fejlesztési lehetőségeket.
+
+% Bibliography
+\bibliographystyle{plain}
+\bibliography{references}
+% Create a references.bib file for your bibliography entries
+
+% Függelékek (opcionális)
+\appendix
+\chapter{Kiegészítő anyagok}
+\label{app:kiegeszito}
+
+Itt helyezz el kiegészítő anyagokat, kódlistákat vagy további adatokat.
+
+\end{document}
+

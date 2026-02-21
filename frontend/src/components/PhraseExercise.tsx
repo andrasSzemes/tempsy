@@ -37,7 +37,12 @@ const TenseLabel = styled.div`
 
 const StyledInput = styled.input<{ $isRight: boolean | null }>`
   color: ${(props) =>
-    props.$isRight === null ? 'inherit' : props.$isRight ? 'green' : 'red'};
+    props.$isRight === null ? 'rgba(255, 255, 255, 0.87)' : props.$isRight ? 'green' : 'red'};
+  
+  @media (prefers-color-scheme: light) {
+    color: ${(props) =>
+      props.$isRight === null ? '#213547' : props.$isRight ? 'green' : 'red'};
+  }
 `;
 
 interface PhraseExerciseProps {
@@ -81,12 +86,14 @@ function PhraseExercise({
     inputRef.current?.focus();
   }, []);
 
-  useEffect(() => {
-    if (numOfTentatives >= 3 && inputRef.current) {
-      inputRef.current.value = conjuguatedVerbWithSubject;
-      if (taskId) updateTaskIsRight(taskId, true);
-    }
-  }, [numOfTentatives, conjuguatedVerbWithSubject, taskId, updateTaskIsRight]);
+  // useEffect(() => {
+  //   if (numOfTentatives >= 3 && inputRef.current) {
+  //     inputRef.current.value = conjuguatedVerbWithSubject;
+  //     if (taskId) updateTaskIsRight(taskId, true);
+  //   }
+  // }, [numOfTentatives, conjuguatedVerbWithSubject, taskId, updateTaskIsRight]);
+
+  console.log("numOfTentatives", numOfTentatives)
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && inputRef.current) {
@@ -111,7 +118,9 @@ function PhraseExercise({
         } else {
           if (taskId) {
             updateTaskAttempts(taskId, numOfTentatives + 1);
-            updateTaskIsRight(taskId, false);
+            if (numOfTentatives + 1 >= 3) {
+              updateTaskIsRight(taskId, false);
+            }
           }
         }
       } else {
@@ -124,9 +133,9 @@ function PhraseExercise({
     <Phrase onClick={isRight === true ? undefined : onClick} $isRight={isRight}>
       <div>{firstPart}</div>
 
-      {isRight && (
+      {(isRight || isRight === false) && (
         <CollapsedReplace>
-          <div style={{color: 'green'}}>{displayConjugation}</div>
+          <div style={{color: isRight ? 'green' : 'red'}}>{displayConjugation}</div>
           <TenseLabel>passé composé</TenseLabel>
         </CollapsedReplace>
       )}
