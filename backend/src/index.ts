@@ -10,7 +10,7 @@ app.use(express.json());
 
 // Routes
 app.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'Welcome to tempsy backend API' });
+  res.json({ message: `Welcome to tempsy backend API: ${process.env.DATABASE_URL?.substring(0, 20)}...` });
 });
 
 app.get('/api/health', (req: Request, res: Response) => {
