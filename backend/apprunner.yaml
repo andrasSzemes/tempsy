@@ -20,5 +20,5 @@ run:
     - name: PORT
       value: "3000"
   secrets:
-    - name: DATABASE_URL
+    - name: AWS_SECRETS
       value-from: "arn:aws:secretsmanager:eu-central-1:150017970635:secret:tempsy/database-url-D0FtN7"
