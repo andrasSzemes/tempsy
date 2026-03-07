@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { ThemeProvider, createTheme, useMediaQuery, CssBaseline } from '@mui/material'
 import './index.css'
 import App from './App.tsx'
+import './auth/amplify'
+import 'aws-amplify/auth/enable-oauth-listener'
 
 function AppWrapper() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');

@@ -1,27 +1,13 @@
 import { Outlet, NavLink } from 'react-router-dom';
+import { Tooltip } from '@mui/material';
 import styled, { css } from 'styled-components';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import LoginIcon from '@mui/icons-material/Login';
-
-function buildCognitoLoginUrl() {
-  const domain = import.meta.env.VITE_COGNITO_DOMAIN as string | undefined;
-  const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID as string | undefined;
-  const redirectUri = import.meta.env.VITE_COGNITO_REDIRECT_URI as string | undefined;
-
-  if (!domain || !clientId || !redirectUri) {
-    return null;
-  }
-
-  const params = new URLSearchParams({
-    client_id: clientId,
-    redirect_uri: redirectUri,
-    response_type: 'code',
-    scope: 'openid email profile',
-  });
-
-  return `${domain}/oauth2/authorize?${params.toString()}`;
-}
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useEffect, useState } from 'react';
+import { getCurrentUser, signInWithRedirect, signOut } from 'aws-amplify/auth';
+import { hasCognitoSetup } from '../auth/amplify';
 
 const LayoutContainer = styled.div`
   width: 100vw;
@@ -77,7 +63,41 @@ const Main = styled.main`
 `;
 
 function MasterLayout() {
-  const loginUrl = buildCognitoLoginUrl();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (!hasCognitoSetup) return;
+
+    let isMounted = true;
+
+    const checkAuth = async () => {
+      try {
+        await getCurrentUser();
+        if (isMounted) {
+          setIsLoggedIn(true);
+        }
+      } catch {
+        if (isMounted) {
+          setIsLoggedIn(false);
+        }
+      }
+    };
+
+    void checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleLoginClick = async () => {
+    await signInWithRedirect();
+  };
+
+  const handleLogoutClick = async () => {
+    await signOut();
+    setIsLoggedIn(false);
+  };
 
   return (
     <LayoutContainer>
@@ -88,10 +108,23 @@ function MasterLayout() {
         <IconLink to="/study">
           <FitnessCenterIcon />
         </IconLink>
-        {loginUrl && (
-          <IconAnchor href={loginUrl}>
-            <LoginIcon />
-          </IconAnchor>
+        {hasCognitoSetup && (
+            <Tooltip title={isLoggedIn ? 'Logout' : 'Login'} placement="bottom" arrow>
+            <IconAnchor
+              href="#"
+              aria-label={isLoggedIn ? 'Logout' : 'Login'}
+              onClick={(event) => {
+                event.preventDefault();
+                if (isLoggedIn) {
+                  void handleLogoutClick();
+                } else {
+                  void handleLoginClick();
+                }
+              }}
+            >
+              {isLoggedIn ? <LogoutIcon /> : <LoginIcon />}
+            </IconAnchor>
+          </Tooltip>
         )}
       </AppBar>
       <Main>
