@@ -5,7 +5,6 @@ import './App.css'
 import Passe from './_maybe-usefull-later/Passe';
 import LearningSpace from './components/LearningSpace';
 import Study from './components/Study';
-import Login from './components/Login';
 import Privacy from './components/Privacy';
 import MasterLayout from './components/MasterLayout';
 import { VerbsProvider } from './contexts/useVerbs';
@@ -120,7 +119,6 @@ function App() {
             <Route element={<MasterLayout />}>
               <Route path="/" element={<LearningSpace/>} />
               <Route path="/study" element={<Study/>} />
-              <Route path="/login" element={<Login/>} />
               <Route path="/privacy" element={<Privacy/>} />
             </Route>
           </Routes>

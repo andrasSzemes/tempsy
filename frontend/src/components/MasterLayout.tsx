@@ -1,8 +1,27 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import LoginIcon from '@mui/icons-material/Login';
+
+function buildCognitoLoginUrl() {
+  const domain = import.meta.env.VITE_COGNITO_DOMAIN as string | undefined;
+  const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID as string | undefined;
+  const redirectUri = import.meta.env.VITE_COGNITO_REDIRECT_URI as string | undefined;
+
+  if (!domain || !clientId || !redirectUri) {
+    return null;
+  }
+
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    scope: 'openid email profile',
+  });
+
+  return `${domain}/oauth2/authorize?${params.toString()}`;
+}
 
 const LayoutContainer = styled.div`
   width: 100vw;
@@ -23,7 +42,7 @@ const AppBar = styled.aside`
   gap: 10px;
 `;
 
-const IconLink = styled(NavLink)`
+const iconBaseStyles = css`
   color: white;
   display: flex;
   align-items: center;
@@ -34,14 +53,22 @@ const IconLink = styled(NavLink)`
   height: 48px;
   border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.05);
-  
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
+`;
+
+const IconLink = styled(NavLink)`
+  ${iconBaseStyles}
 
   &.active {
     color: #d1b48c;
   }
+`;
+
+const IconAnchor = styled.a`
+  ${iconBaseStyles}
 `;
 
 const Main = styled.main`
@@ -50,6 +77,8 @@ const Main = styled.main`
 `;
 
 function MasterLayout() {
+  const loginUrl = buildCognitoLoginUrl();
+
   return (
     <LayoutContainer>
       <AppBar>
@@ -59,9 +88,11 @@ function MasterLayout() {
         <IconLink to="/study">
           <FitnessCenterIcon />
         </IconLink>
-        <IconLink to="/login">
-          <LoginIcon />
-        </IconLink>
+        {loginUrl && (
+          <IconAnchor href={loginUrl}>
+            <LoginIcon />
+          </IconAnchor>
+        )}
       </AppBar>
       <Main>
         <Outlet />
