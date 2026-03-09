@@ -8,9 +8,10 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(uuid())
-  cognitoSub  String   @unique
-  email       String   @unique
-  displayName String?
-  createdAt   DateTime @default(now())
+  id                String   @id @default(uuid())
+  registryCognitoSub String?  @unique
+  googleCognitoSub   String?  @unique
+  email             String   @unique
+  name              String?
+  createdAt         DateTime @default(now())
 }

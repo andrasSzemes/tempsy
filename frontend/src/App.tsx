@@ -8,6 +8,8 @@ import Study from './components/Study';
 import Privacy from './components/Privacy';
 import MasterLayout from './components/MasterLayout';
 import { VerbsProvider } from './contexts/useVerbs';
+import { UserClientProvider } from './contexts/useUserClient';
+import { UserProvider } from './contexts/useUser';
 
 
 function getRandomItem<T>(array: T[]): T | null {
@@ -114,15 +116,19 @@ function App() {
     <>
       {/* <Passe/> */}
       <VerbsProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route element={<MasterLayout />}>
-              <Route path="/" element={<LearningSpace/>} />
-              <Route path="/study" element={<Study/>} />
-              <Route path="/privacy" element={<Privacy/>} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
+        <UserClientProvider>
+          <UserProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route element={<MasterLayout />}>
+                  <Route path="/" element={<LearningSpace/>} />
+                  <Route path="/study" element={<Study/>} />
+                  <Route path="/privacy" element={<Privacy/>} />
+                </Route>
+              </Routes>
+            </BrowserRouter>
+          </UserProvider>
+        </UserClientProvider>
       </VerbsProvider>
     </>
   );

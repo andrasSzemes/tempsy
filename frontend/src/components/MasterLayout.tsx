@@ -5,9 +5,8 @@ import PostAddIcon from '@mui/icons-material/PostAdd';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { useEffect, useState } from 'react';
-import { getCurrentUser, signInWithRedirect, signOut } from 'aws-amplify/auth';
 import { hasCognitoSetup } from '../auth/amplify';
+import { useUser } from '../contexts/useUser';
 
 const LayoutContainer = styled.div`
   width: 100vw;
@@ -63,41 +62,7 @@ const Main = styled.main`
 `;
 
 function MasterLayout() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    if (!hasCognitoSetup) return;
-
-    let isMounted = true;
-
-    const checkAuth = async () => {
-      try {
-        await getCurrentUser();
-        if (isMounted) {
-          setIsLoggedIn(true);
-        }
-      } catch {
-        if (isMounted) {
-          setIsLoggedIn(false);
-        }
-      }
-    };
-
-    void checkAuth();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const handleLoginClick = async () => {
-    await signInWithRedirect();
-  };
-
-  const handleLogoutClick = async () => {
-    await signOut();
-    setIsLoggedIn(false);
-  };
+  const { isLoggedIn, login, logout } = useUser();
 
   return (
     <LayoutContainer>
@@ -116,9 +81,9 @@ function MasterLayout() {
               onClick={(event) => {
                 event.preventDefault();
                 if (isLoggedIn) {
-                  void handleLogoutClick();
+                  void logout();
                 } else {
-                  void handleLoginClick();
+                  void login();
                 }
               }}
             >
