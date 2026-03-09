@@ -1,5 +1,6 @@
 import 'styled-components';
 import styled from 'styled-components';
+import { FormControl, MenuItem, Select } from '@mui/material';
 import { conjugaisonPasseCompose } from '../../tenses/passeCompose/conjugaison';
 import { useVerbs } from '../../contexts/useVerbs';
 import SelectAllCheckbox from './SelectAllCheckbox';
@@ -38,13 +39,55 @@ const VerbList = styled.div`
 
 function VerbSelector() {
   const {
-    /*verbCounters, setVerbCounters */
+    selectedTense,
+    setSelectedTense,
   } = useVerbs();
 
   return (
     <Container>
       <ControlsHeader>
         <div>
+          <FormControl fullWidth size="small" sx={{ pt: '3px', mb: 1 }}>
+            <Select
+            aria-label="Select tense"
+            value={selectedTense}
+            onChange={(event) => setSelectedTense(event.target.value)}
+            MenuProps={{
+              anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+              transformOrigin: { vertical: 'top', horizontal: 'left' },
+              PaperProps: {
+                sx: {
+                  mt: 0.5,
+                },
+              },
+            }}
+            sx={{
+              fontSize: '16px',
+              color: 'white',
+              backgroundColor: 'rgba(255, 255, 255, 0.06)',
+              borderRadius: '8px',
+              boxShadow: 'none',
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(255, 255, 255, 0.15)',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(255, 255, 255, 0.35)',
+              },
+              '&.Mui-focused': {
+                boxShadow: 'none',
+                outline: 'none',
+              },
+              '& .MuiSelect-icon': {
+                color: 'white',
+              },
+            }}
+          >
+            <MenuItem value="passé composé">Passé Composé</MenuItem>
+          </Select>
+          </FormControl>
           <SelectAllCheckbox />
           <IrregularVerbsButton />
         </div>

@@ -1,5 +1,4 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { Tooltip } from '@mui/material';
 import styled, { css } from 'styled-components';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
@@ -61,6 +60,21 @@ const Main = styled.main`
   overflow: auto;
 `;
 
+const BottomAction = styled.div`
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+`;
+
+const ActionLabel = styled.span`
+  font-size: 11px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.75);
+  user-select: none;
+`;
+
 function MasterLayout() {
   const { isLoggedIn, login, logout } = useUser();
 
@@ -74,7 +88,7 @@ function MasterLayout() {
           <FitnessCenterIcon />
         </IconLink>
         {hasCognitoSetup && (
-            <Tooltip title={isLoggedIn ? 'Logout' : 'Login'} placement="bottom" arrow>
+          <BottomAction>
             <IconAnchor
               href="#"
               aria-label={isLoggedIn ? 'Logout' : 'Login'}
@@ -89,7 +103,8 @@ function MasterLayout() {
             >
               {isLoggedIn ? <LogoutIcon /> : <LoginIcon />}
             </IconAnchor>
-          </Tooltip>
+            <ActionLabel>{isLoggedIn ? 'Logout' : 'Login'}</ActionLabel>
+          </BottomAction>
         )}
       </AppBar>
       <Main>

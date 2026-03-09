@@ -3,19 +3,24 @@ import { useVerbs } from '../../contexts/useVerbs';
 import irregularVerbs from '../../tenses/passeCompose/irregularVerbs';
 
 const ButtonWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 8px;
+  padding: 0 0 8px 0;
 `;
 
 const StyledButton = styled.button`
-  background: none;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  color: #888;
+  width: 100%;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
   cursor: pointer;
-  font-size: 1em;
-  padding: 2px 8px;
+  font-size: 16px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
 `;
 
 function IrregularVerbsButton() {
@@ -23,7 +28,7 @@ function IrregularVerbsButton() {
 
   return (
     <ButtonWrapper>
-      <StyledButton onClick={() => forceSelectVerbList(irregularVerbs.passeCompose)}>
+      <StyledButton type="button" onClick={() => forceSelectVerbList(irregularVerbs.passeCompose)}>
         Irregular verbs
       </StyledButton>
     </ButtonWrapper>
