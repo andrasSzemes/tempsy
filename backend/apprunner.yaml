@@ -10,7 +10,7 @@ build:
       - echo "Build completed successfully"
 
 run:
-  command: npm run prisma:migrate:deploy && npm start
+  command: node scripts/run-with-migrations.mjs
   network:
     port: 3000
     env: APP_PORT
