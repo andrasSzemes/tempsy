@@ -28,12 +28,14 @@ function resolveDatabaseUrl() {
 }
 
 function run(command, args, env) {
+  console.log(`[startup] Running: ${command} ${args.join(' ')}`);
   const result = spawnSync(command, args, {
     stdio: 'inherit',
     env,
   });
 
   if (result.status !== 0) {
+    console.error(`[startup] Command failed with exit code ${result.status ?? 1}: ${command} ${args.join(' ')}`);
     process.exit(result.status ?? 1);
   }
 }
@@ -43,6 +45,9 @@ if (!databaseUrl) {
   console.error('Startup failed: DATABASE_URL is missing and could not be resolved from AWS_SECRETS.');
   process.exit(1);
 }
+
+console.log('[startup] DATABASE_URL resolved successfully.');
+console.log(`[startup] NODE_ENV=${process.env.NODE_ENV ?? 'undefined'}, PORT=${process.env.PORT ?? 'undefined'}`);
 
 const env = {
   ...process.env,
