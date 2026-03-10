@@ -22,6 +22,54 @@ type CombinationRow = {
   tense: string;
 };
 
+type TimeMarkerRow = {
+  placement: 'beginningOfSentence' | 'endOfSentence';
+  text: string;
+};
+
+function getRandomItem<T>(items: T[]): T {
+  const index = Math.floor(Math.random() * items.length);
+  return items[index];
+}
+
+function capitalizeStart(sentence: string): string {
+  if (!sentence) {
+    return '';
+  }
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+}
+
+function ensureSentenceEnding(sentence: string): string {
+  const trimmed = sentence.trim();
+  if (trimmed.length === 0) {
+    return '';
+  }
+
+  const lastChar = trimmed[trimmed.length - 1];
+  if (['.', '!', '?'].includes(lastChar)) {
+    return trimmed;
+  }
+
+  return `${trimmed}.`;
+}
+
+function normalizePhraseToShow(phrase: string): string {
+  return ensureSentenceEnding(capitalizeStart(phrase));
+}
+
+function addTimeMarker(sentence: string, marker: TimeMarkerRow): string {
+  const trimmedSentence = sentence.trim();
+  if (trimmedSentence.length === 0) {
+    return '';
+  }
+
+  if (marker.placement === 'beginningOfSentence') {
+    return `${marker.text}, ${trimmedSentence}`;
+  }
+
+  return `${trimmedSentence} ${marker.text}`;
+}
+
 combinationsRouter.post('/generate', async (req: Request<unknown, unknown, GenerateCombinationsBody>, res: Response) => {
   const { tense, verbs } = req.body ?? {};
 
@@ -88,7 +136,26 @@ combinationsRouter.post('/generate', async (req: Request<unknown, unknown, Gener
       WHERE v."name" IN (${verbNamesSql});
     `;
 
-    return res.status(200).json({ items });
+    const timeMarkers = await prisma.$queryRaw<TimeMarkerRow[]>`
+      SELECT "text", "placement"
+      FROM "TimeMarker"
+      WHERE "tense_id" = ${tenseRow.id}::uuid
+        AND "placement" IN ('beginningOfSentence', 'endOfSentence');
+    `;
+
+    const normalizedItems = items.map((item) => {
+      const phraseWithOptionalMarker =
+        timeMarkers.length > 0
+          ? addTimeMarker(item.phraseToShow, getRandomItem(timeMarkers))
+          : item.phraseToShow;
+
+      return {
+        ...item,
+        phraseToShow: normalizePhraseToShow(phraseWithOptionalMarker),
+      };
+    });
+
+    return res.status(200).json({ items: normalizedItems });
   } catch (error) {
     return res.status(500).json({
       message: 'Could not generate combinations.',

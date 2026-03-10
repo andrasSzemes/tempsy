@@ -29,6 +29,7 @@ model Tense {
   name        String
   conjugations Conjugation[]
   irregulars  Irregular[]
+  timeMarkers TimeMarker[]
 }
 
 model Subject {
@@ -67,4 +68,13 @@ model Irregular {
   tense Tense @relation(fields: [tenseId], references: [id], onDelete: Cascade)
 
   @@unique([verbId, tenseId])
+}
+
+model TimeMarker {
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  text     String
+  placement String
+  tenseId  String @map("tense_id") @db.Uuid
+
+  tense Tense @relation(fields: [tenseId], references: [id], onDelete: Cascade)
 }

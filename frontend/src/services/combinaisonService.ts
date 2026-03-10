@@ -23,6 +23,10 @@ function resolveBackendTense(tense: string): string {
 }
 
 export async function fetchCombinaisons(tense: string, verbs: string[]): Promise<Combinaison[]> {
+  if (!Array.isArray(verbs) || verbs.length === 0) {
+    return [];
+  }
+
   const items = await combinationClient.generateCombinations({
     tense: resolveBackendTense(tense),
     verbs,

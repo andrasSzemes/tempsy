@@ -1,7 +1,7 @@
 // import { useState, useCallback } from "react";
-// import { sentencePasseCompose } from "../tenses/passeCompose/context";
-// import { timeMarkerPasseCompose } from "../tenses/passeCompose/timeMarker";
-// import { conjugaisonPasseCompose } from "../tenses/passeCompose/conjugaison";
+// import { sentencePasseCompose } from "./passeCompose/context";
+// import { timeMarkerPasseCompose } from "./passeCompose/timeMarker";
+// import { conjugaisonPasseCompose } from "./passeCompose/conjugaison";
 
 // function getRandomItem<T>(array: T[]): T {
 //   const index = Math.floor(Math.random() * array.length);
@@ -55,32 +55,24 @@
 //  * @param verbs An array of verb infinitives to choose from.
 //  * @returns An object containing the current verb, conjugated form, subject, display phrase, and a function to get the next combination.
 //  */
-// export function useCombinaison(tense: string, verbs: string[]) {
-//   const [verb, setVerb] = useState(() => getRandomItem(verbs));
-//   const [sentence, setSentence] = useState(() => verb ? getRandomItem(sentencePasseCompose[verb]) : "");
-//   const [timeMarker, setTimeMarker] = useState(() => getRandomItem(timeMarkerPasseCompose));
-//   const [subject, setSubject] = useState(getRandomSubject());
+// export function createCombination(tense: string, verbs: string[]) {
+//   if (verbs.length === 0) {
+//     return null;
+//   }
 
-//   const nextCombinaison = useCallback(
-//     (newVerbs?: string[]) => {
-//       const verbList = newVerbs || verbs;
-//       const newVerb = getRandomItem(verbList);
-//       setVerb(newVerb);
-//       setSentence(newVerb ? getRandomItem(sentencePasseCompose[newVerb]) : "");
-//       setTimeMarker(getRandomItem(timeMarkerPasseCompose));
-//       setSubject(getRandomSubject());
-//     },
-//     [verbs, tense]
-//   );
+//   const newVerb = getRandomItem(verbs);
+//   const newSentence = getRandomItem(sentencePasseCompose[newVerb]);
+//   const newTimeMarker = getRandomItem(timeMarkerPasseCompose);
+//   const newSubject = getRandomSubject();
 
-//   const conjuguatedVerbWithSubject = verb ? conjugateVerb(verb, tense, subject) : '';
-//   const phraseToShow = verb ? capitalizeStart(addTimeMarker(sentence, timeMarker) + '.') : '';
+//   const conjuguatedVerbWithSubject = conjugateVerb(newVerb, tense, newSubject);
+//   const phraseToShow = capitalizeStart(addTimeMarker(newSentence, newTimeMarker) + '.');
 
 //   return {
-//     verb,
+//     verb: newVerb,
 //     conjuguatedVerbWithSubject,
-//     subject,
+//     subject: newSubject,
 //     phraseToShow,
-//     nextCombinaison,
+//     tense
 //   };
 // }
