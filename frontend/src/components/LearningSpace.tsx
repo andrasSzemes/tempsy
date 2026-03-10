@@ -86,7 +86,7 @@ function LearningSpace() {
           {taskList.length > 0 && (
             <DeleteIcon sx={{ position: 'absolute', top: 16, cursor: 'pointer', color: '#d1b48c' }} onClick={() => emptyTaskList()} />
           )}
-          <Add onClick={() => addSelectedVerbs()}>
+          <Add onClick={() => void addSelectedVerbs()}>
             <div>Click to add</div>
             <div>for practice</div>
             <Arrow>➤</Arrow>

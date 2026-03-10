@@ -10,6 +10,7 @@ import MasterLayout from './components/MasterLayout';
 import { VerbsProvider } from './contexts/useVerbs';
 import { UserClientProvider } from './contexts/useUserClient';
 import { UserProvider } from './contexts/useUser';
+import { CombinationClientProvider } from './contexts/useCombinationClient';
 
 
 function getRandomItem<T>(array: T[]): T | null {
@@ -118,15 +119,17 @@ function App() {
       <VerbsProvider>
         <UserClientProvider>
           <UserProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route element={<MasterLayout />}>
-                  <Route path="/" element={<LearningSpace/>} />
-                  <Route path="/study" element={<Study/>} />
-                  <Route path="/privacy" element={<Privacy/>} />
-                </Route>
-              </Routes>
-            </BrowserRouter>
+            <CombinationClientProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route element={<MasterLayout />}>
+                    <Route path="/" element={<LearningSpace/>} />
+                    <Route path="/study" element={<Study/>} />
+                    <Route path="/privacy" element={<Privacy/>} />
+                  </Route>
+                </Routes>
+              </BrowserRouter>
+            </CombinationClientProvider>
           </UserProvider>
         </UserClientProvider>
       </VerbsProvider>

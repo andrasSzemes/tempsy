@@ -15,3 +15,43 @@ model User {
   name              String?
   createdAt         DateTime @default(now())
 }
+
+model Verb {
+  id       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name     String
+  contexts Context[]
+  conjugations Conjugation[]
+}
+
+model Tense {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  conjugations Conjugation[]
+}
+
+model Subject {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  conjugations Conjugation[]
+}
+
+model Context {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  verbId String @map("verb_id") @db.Uuid
+  text   String
+
+  verb Verb @relation(fields: [verbId], references: [id], onDelete: Cascade)
+}
+
+model Conjugation {
+  verbId    String @map("verb_id") @db.Uuid
+  subjectId String @map("subject_id") @db.Uuid
+  tenseId   String @map("tense_id") @db.Uuid
+  text      String
+
+  verb    Verb    @relation(fields: [verbId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  tense   Tense   @relation(fields: [tenseId], references: [id], onDelete: Cascade)
+
+  @@id([verbId, subjectId, tenseId])
+}

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import { conjugaisonPasseCompose } from "../tenses/passeCompose/conjugaison";
-import { generateAllCombinaisons, type Combinaison } from "../hooks/useAllCombinaisons";
+import { fetchCombinaisons, type Combinaison } from "../services/combinaisonService";
 
 // Define the shape of the verbs context
 interface VerbsContextType {
@@ -13,7 +13,7 @@ interface VerbsContextType {
   toggleVerbList: (verbs: string[]) => void;
   forceSelectVerbList: (verbs: string[]) => void;
   toggleVerb: (verb: string) => void;
-  addSelectedVerbs: () => void;
+    addSelectedVerbs: () => Promise<void>;
   taskList: Combinaison[];
   emptyTaskList: () => void;
   updateTaskAttempts: (taskId: string, numOfTentatives: number) => void;
@@ -28,9 +28,13 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
     const [taskList, setTaskList] = useState<Combinaison[]>([]);
     const [selectedTense, setSelectedTense] = useState<string>("passé composé");
 
-    function addSelectedVerbs() {
-        const tasks = generateAllCombinaisons(selectedTense, availableVerbs);
-        setTaskList((prevTasks) => [...prevTasks, ...tasks]);
+    async function addSelectedVerbs() {
+        try {
+            const tasks = await fetchCombinaisons(selectedTense, availableVerbs);
+            setTaskList((prevTasks) => [...prevTasks, ...tasks]);
+        } catch (error) {
+            console.error('Could not generate combinations from backend:', error);
+        }
     }
 
     function emptyTaskList() {
