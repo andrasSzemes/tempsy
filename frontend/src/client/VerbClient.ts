@@ -6,6 +6,10 @@ type GetIrregularByTenseResponse = {
   irregularByTense: Record<string, string[]>;
 };
 
+type GetTensesResponse = {
+  tenses: string[];
+};
+
 export class VerbClient {
   private readonly baseUrl: string;
 
@@ -33,6 +37,17 @@ export class VerbClient {
 
     const data = (await response.json()) as GetIrregularByTenseResponse;
     return data.irregularByTense;
+  }
+
+  async getTenses(): Promise<string[]> {
+    const response = await fetch(`${this.baseUrl}/api/verbs/tense`);
+
+    if (!response.ok) {
+      throw new Error(`Could not fetch tenses (status ${response.status}).`);
+    }
+
+    const data = (await response.json()) as GetTensesResponse;
+    return data.tenses;
   }
 }
 

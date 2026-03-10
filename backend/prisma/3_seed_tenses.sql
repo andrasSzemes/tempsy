@@ -1,7 +1,9 @@
 INSERT INTO "Tense" ("name")
 SELECT v.name
 FROM (VALUES
-  ('Passé Composé')
+  ('Présent'),
+  ('Passé Composé'),
+  ('Imparfait')
 ) AS v(name)
 WHERE NOT EXISTS (
   SELECT 1

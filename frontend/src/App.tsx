@@ -12,6 +12,7 @@ import { UserClientProvider } from './contexts/clientProviders/useUserClient';
 import { UserProvider } from './contexts/useUser';
 import { CombinationClientProvider } from './contexts/clientProviders/useCombinationClient';
 import { VerbClientProvider } from './contexts/clientProviders/useVerbClient';
+import { LanguageProvider } from './contexts/useLanguage';
 
 
 function getRandomItem<T>(array: T[]): T | null {
@@ -117,25 +118,27 @@ function App() {
   return (
     <>
       {/* <Passe/> */}
-      <VerbClientProvider>
-        <VerbsProvider>
-          <UserClientProvider>
+      <UserClientProvider>
+        <CombinationClientProvider>
+          <VerbClientProvider>
             <UserProvider>
-              <CombinationClientProvider>
-                <BrowserRouter>
-                  <Routes>
-                    <Route element={<MasterLayout />}>
-                      <Route path="/" element={<LearningSpace/>} />
-                      <Route path="/study" element={<Study/>} />
-                      <Route path="/privacy" element={<Privacy/>} />
-                    </Route>
-                  </Routes>
-                </BrowserRouter>
-              </CombinationClientProvider>
+              <LanguageProvider>
+                <VerbsProvider>
+                  <BrowserRouter>
+                    <Routes>
+                      <Route element={<MasterLayout />}>
+                        <Route path="/" element={<LearningSpace />} />
+                        <Route path="/study" element={<Study />} />
+                        <Route path="/privacy" element={<Privacy />} />
+                      </Route>
+                    </Routes>
+                  </BrowserRouter>
+                </VerbsProvider>
+              </LanguageProvider>
             </UserProvider>
-          </UserClientProvider>
-        </VerbsProvider>
-      </VerbClientProvider>
+          </VerbClientProvider>
+        </CombinationClientProvider>
+      </UserClientProvider>
     </>
   );
 }

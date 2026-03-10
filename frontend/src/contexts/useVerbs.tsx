@@ -1,14 +1,12 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { fetchCombinaisons, type Combinaison } from "../services/combinaisonService";
-import { useVerbClient } from "./clientProviders/useVerbClient";
+import { useLanguage } from "./useLanguage";
 
 // Define the shape of the verbs context
 interface VerbsContextType {
-    allVerbs: string[];
   checkedVerbs: { [verb: string]: boolean };
   availableVerbs: string[];
-    irregularByTense: Record<string, string[]>;
     irregularVerbsForSelectedTense: string[];
   selectedTense: string;
   setSelectedTense: (tense: string) => void;
@@ -28,42 +26,32 @@ const VerbsContext = createContext<VerbsContextType | undefined>(undefined);
 
 // Provider component
 export const VerbsProvider = ({ children }: { children: ReactNode }) => {
-    const verbClient = useVerbClient();
-    
+    const { allVerbs, allTenses, irregularByTense } = useLanguage();
+
     const [taskList, setTaskList] = useState<Combinaison[]>([]);
     const [selectedTense, setSelectedTense] = useState<string>("Passé Composé");
-    const [allVerbs, setAllVerbs] = useState<string[]>([]);
-    const [irregularByTense, setIrregularByTense] = useState<Record<string, string[]>>({});
     const [checkedVerbs, setCheckedVerbs] = useState<{ [verb: string]: boolean }>({});
 
     useEffect(() => {
-        let isMounted = true;
+        if (allVerbs.length === 0) {
+            setCheckedVerbs({});
+            return;
+        }
 
-        const loadVerbData = async () => {
-            try {
-                const [verbs, irregularMap] = await Promise.all([
-                    verbClient.getVerbs(),
-                    verbClient.getIrregularByTense(),
-                ]);
+        setCheckedVerbs((prev) => {
+            const next: { [verb: string]: boolean } = {};
+            allVerbs.forEach((verb, index) => {
+                next[verb] = prev[verb] ?? index < 3;
+            });
+            return next;
+        });
+    }, [allVerbs]);
 
-                if (!isMounted) {
-                    return;
-                }
-
-                setAllVerbs(verbs);
-                setIrregularByTense(irregularMap);
-                setCheckedVerbs(Object.fromEntries(verbs.map((verb, index) => [verb, index < 3])));
-            } catch (error) {
-                console.error('Could not load verbs data from backend:', error);
-            }
-        };
-
-        void loadVerbData();
-
-        return () => {
-            isMounted = false;
-        };
-    }, [verbClient]);
+    useEffect(() => {
+        if (allTenses.length > 0 && !allTenses.includes(selectedTense)) {
+            setSelectedTense(allTenses.includes('Passé Composé') ? 'Passé Composé' : allTenses[0]);
+        }
+    }, [allTenses, selectedTense]);
 
     async function addSelectedVerbs() {
         try {
@@ -142,12 +130,10 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
 
     return (
       <VerbsContext.Provider value={{
-                allVerbs,
         checkedVerbs,
         toggleVerb,
         availableVerbs,
-                irregularByTense,
-                irregularVerbsForSelectedTense,
+        irregularVerbsForSelectedTense,
         selectedTense,
         setSelectedTense,
         setAllCheckStatus,

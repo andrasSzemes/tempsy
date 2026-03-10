@@ -5,12 +5,34 @@ type VerbRow = {
   name: string;
 };
 
+type TenseRow = {
+  name: string;
+};
+
 type IrregularRow = {
   tense: string;
   verb: string;
 };
 
 const verbsRouter = Router();
+
+verbsRouter.get('/tense', async (_req: Request, res: Response) => {
+  try {
+    const rows = await prisma.$queryRaw<TenseRow[]>`
+      SELECT "name"
+      FROM "Tense"
+      ORDER BY "name" ASC;
+    `;
+
+    const tenses = rows.map((row) => row.name);
+    return res.status(200).json({ tenses });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Could not fetch tenses.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
 
 verbsRouter.get('/irregular', async (_req: Request, res: Response) => {
   try {
