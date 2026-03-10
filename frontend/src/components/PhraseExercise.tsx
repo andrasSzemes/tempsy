@@ -56,6 +56,7 @@ interface PhraseExerciseProps {
   subject: string;
   conjuguatedVerbWithSubject: string;
   availableVerbs: string[];
+  tense: string;
   taskId?: string;
   numOfTentatives?: number;
   isRight?: boolean | null;
@@ -71,6 +72,7 @@ function PhraseExercise({
   subject,
   conjuguatedVerbWithSubject,
   availableVerbs,
+  tense,
   taskId,
   numOfTentatives = 0,
   isRight = null,
@@ -78,6 +80,8 @@ function PhraseExercise({
 }: PhraseExerciseProps) {
   const { updateTaskAttempts, updateTaskIsRight } = useVerbs();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  console.log('tense', tense);
 
   const firstPart = phraseToShow.split('(')[0];
   const secondPart = phraseToShow.split(')')[1];
@@ -139,17 +143,18 @@ function PhraseExercise({
     <Phrase onClick={isRight === true ? undefined : onClick} $isRight={isRight}>
       <div>{firstPart}</div>
 
+
       {(isRight || isRight === false) && (
         <CollapsedReplace>
           <div style={{color: isRight ? 'green' : 'red'}}>{displayConjugation}</div>
-          <TenseLabel>passé composé</TenseLabel>
+          <TenseLabel>{tense}</TenseLabel>
         </CollapsedReplace>
       )}
 
       {!isRight && !isSelected && (
         <CollapsedReplace>
           <div>({!isRight ? subject + ', ' + verb : '‎'})</div>
-          <TenseLabel>passé composé</TenseLabel>
+          <TenseLabel>{tense}</TenseLabel>
         </CollapsedReplace>
       )}
 

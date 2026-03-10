@@ -103,6 +103,7 @@ function LearningSpace() {
                 subject={task.subject}
                 conjuguatedVerbWithSubject={task.conjuguatedVerbWithSubject}
                 availableVerbs={availableVerbs}
+                tense={task.tense}
               />
             ))
           ) : (

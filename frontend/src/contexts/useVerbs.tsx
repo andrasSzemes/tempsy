@@ -5,20 +5,22 @@ import { useLanguage } from "./useLanguage";
 
 // Define the shape of the verbs context
 interface VerbsContextType {
-  checkedVerbs: { [verb: string]: boolean };
-  availableVerbs: string[];
+    checkedVerbs: { [verb: string]: boolean };
+    availableVerbs: string[];
     irregularVerbsForSelectedTense: string[];
-  selectedTense: string;
-  setSelectedTense: (tense: string) => void;
-  setAllCheckStatus: (checked: boolean) => void;
-  toggleVerbList: (verbs: string[]) => void;
-  forceSelectVerbList: (verbs: string[]) => void;
-  toggleVerb: (verb: string) => void;
+    selectedTense: string;
+    setSelectedTense: (tense: string) => void;
+    setAllCheckStatus: (checked: boolean) => void;
+    toggleVerbList: (verbs: string[]) => void;
+    forceSelectVerbList: (verbs: string[]) => void;
+    toggleVerb: (verb: string) => void;
     addSelectedVerbs: () => Promise<void>;
-  taskList: Combinaison[];
-  emptyTaskList: () => void;
-  updateTaskAttempts: (taskId: string, numOfTentatives: number) => void;
-  updateTaskIsRight: (taskId: string, isRight: boolean | null) => void;
+    taskList: Combinaison[];
+    emptyTaskList: () => void;
+    resetTaskList: () => void;
+    isTaskListResetable: boolean;
+    updateTaskAttempts: (taskId: string, numOfTentatives: number) => void;
+    updateTaskIsRight: (taskId: string, isRight: boolean | null) => void;
 }
 
 // Create the context with a default value
@@ -64,6 +66,16 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
 
     function emptyTaskList() {
         setTaskList([]);
+    }
+
+    function resetTaskList() {
+        setTaskList((prevTasks) =>
+            prevTasks.map((task) => ({
+                ...task,
+                numOfTentatives: 0,
+                isRight: null,
+            }))
+        );
     }
 
     function updateTaskAttempts(taskId: string, numOfTentatives: number) {
@@ -128,26 +140,32 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
             }));
         };
 
-    return (
-      <VerbsContext.Provider value={{
-        checkedVerbs,
-        toggleVerb,
-        availableVerbs,
-        irregularVerbsForSelectedTense,
-        selectedTense,
-        setSelectedTense,
-        setAllCheckStatus,
-        toggleVerbList,
-        forceSelectVerbList,
-        addSelectedVerbs,
-        taskList,
-        emptyTaskList,
-        updateTaskAttempts,
-        updateTaskIsRight
-        }}>
-        {children}
-      </VerbsContext.Provider>
-    );
+        const isTaskListResetable = taskList.some(
+            (task) => task.numOfTentatives !== 0 || task.isRight !== null
+        );
+
+        return (
+            <VerbsContext.Provider value={{
+                checkedVerbs,
+                toggleVerb,
+                availableVerbs,
+                irregularVerbsForSelectedTense,
+                selectedTense,
+                setSelectedTense,
+                setAllCheckStatus,
+                toggleVerbList,
+                forceSelectVerbList,
+                addSelectedVerbs,
+                taskList,
+                emptyTaskList,
+                resetTaskList,
+                isTaskListResetable,
+                updateTaskAttempts,
+                updateTaskIsRight
+                }}>
+                {children}
+            </VerbsContext.Provider>
+        );
 };
 
 // Custom hook to use the verbs context

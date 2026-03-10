@@ -6,6 +6,7 @@ export interface Combinaison {
   conjuguatedVerbWithSubject: string;
   subject: string;
   phraseToShow: string;
+  tense: string;
   numOfTentatives: number;
   isRight: boolean | null;
 }
@@ -38,6 +39,7 @@ export async function fetchCombinaisons(tense: string, verbs: string[]): Promise
     conjuguatedVerbWithSubject: item.conjuguatedVerbWithSubject,
     subject: item.subject,
     phraseToShow: item.phraseToShow,
+    tense: item.tense,
     numOfTentatives: 0,
     isRight: null,
   }));

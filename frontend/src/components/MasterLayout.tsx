@@ -4,8 +4,11 @@ import PostAddIcon from '@mui/icons-material/PostAdd';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { hasCognitoSetup } from '../auth/amplify';
 import { useUser } from '../contexts/useUser';
+import { useLocation } from 'react-router-dom';
+import { useVerbs } from '../contexts/useVerbs';
 
 const LayoutContainer = styled.div`
   width: 100vw;
@@ -55,6 +58,17 @@ const IconAnchor = styled.a`
   ${iconBaseStyles}
 `;
 
+const IconGroup = styled.div<{ $active?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: ${({ $active }) => $active ? '1px solid #d1b48c44' : 'none'};
+  border-radius: 6px;
+  padding: 4px;
+  margin-top: 8px;
+  gap: 8px;
+`;
+
 const Main = styled.main`
   flex: 1;
   overflow: auto;
@@ -77,6 +91,8 @@ const ActionLabel = styled.span`
 
 function MasterLayout() {
   const { isLoggedIn, login, logout } = useUser();
+  const { resetTaskList, taskList, isTaskListResetable } = useVerbs();
+  const location = useLocation();
 
   return (
     <LayoutContainer>
@@ -84,9 +100,33 @@ function MasterLayout() {
         <IconLink to="/" end>
           <PostAddIcon />
         </IconLink>
-        <IconLink to="/study">
-          <FitnessCenterIcon />
-        </IconLink>
+          <ActionLabel>Setup</ActionLabel>
+        <IconGroup $active={location.pathname === '/study'}>
+          <IconLink to="/study">
+            <FitnessCenterIcon />
+          </IconLink>
+          {location.pathname === '/study' && taskList.length > 0 && (
+            <IconAnchor
+              href="#"
+              aria-label="Újrakezdés"
+              onClick={e => {
+                e.preventDefault();
+                if (!isTaskListResetable) return;
+                resetTaskList();
+              }}
+              title="Újrakezdés"
+              style={{ pointerEvents: isTaskListResetable ? 'auto' : 'none' }}
+            >
+              <RestartAltIcon sx={{ color: isTaskListResetable ? '#d1b48c' : '#888', cursor: isTaskListResetable ? 'pointer' : 'not-allowed' }} />
+            </IconAnchor>
+          )}
+        </IconGroup>
+        {location.pathname === '/study' && (
+          <ActionLabel>Practice</ActionLabel>
+        )}
+        {location.pathname !== '/study' && (
+          <ActionLabel>Practice</ActionLabel>
+        )}
         {hasCognitoSetup && (
           <BottomAction>
             <IconAnchor
