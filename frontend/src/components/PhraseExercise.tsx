@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useVerbs } from '../contexts/useVerbs';
 
@@ -38,10 +38,14 @@ const TenseLabel = styled.div`
 const StyledInput = styled.input<{ $isRight: boolean | null }>`
   color: ${(props) =>
     props.$isRight === null ? 'rgba(255, 255, 255, 0.87)' : props.$isRight ? 'green' : 'red'};
-  
-  @media (prefers-color-scheme: light) {
-    color: ${(props) =>
-      props.$isRight === null ? '#213547' : props.$isRight ? 'green' : 'red'};
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #1f1f1f;
+
+  &:focus {
+    outline: none;
+    border-color: #d2b48c;
+    box-shadow: 0 0 0 2px rgba(210, 180, 140, 0.35);
   }
 `;
 
@@ -83,8 +87,10 @@ function PhraseExercise({
     : conjuguatedVerbWithSubject;
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    if (isSelected) {
+      inputRef.current?.focus();
+    }
+  }, [isSelected]);
 
   // useEffect(() => {
   //   if (numOfTentatives >= 3 && inputRef.current) {
