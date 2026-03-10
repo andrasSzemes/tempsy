@@ -1,7 +1,6 @@
 import 'styled-components';
 import styled from 'styled-components';
 import { FormControl, MenuItem, Select } from '@mui/material';
-import { conjugaisonPasseCompose } from '../../tenses/passeCompose/conjugaison';
 import { useVerbs } from '../../contexts/useVerbs';
 import SelectAllCheckbox from './SelectAllCheckbox';
 import IrregularVerbsButton from './IrregularVerbsButton';
@@ -39,6 +38,7 @@ const VerbList = styled.div`
 
 function VerbSelector() {
   const {
+    allVerbs,
     selectedTense,
     setSelectedTense,
   } = useVerbs();
@@ -85,7 +85,7 @@ function VerbSelector() {
               },
             }}
           >
-            <MenuItem value="passé composé">Passé Composé</MenuItem>
+            <MenuItem value="Passé Composé">Passé Composé</MenuItem>
           </Select>
           </FormControl>
           <SelectAllCheckbox />
@@ -93,7 +93,7 @@ function VerbSelector() {
         </div>
       </ControlsHeader>
       <VerbList>
-        {Object.keys(conjugaisonPasseCompose).map((verb) => (
+        {allVerbs.map((verb) => (
           <VerbCheckbox key={verb} verb={verb} />
         ))}
       </VerbList>

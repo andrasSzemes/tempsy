@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { CombinationClient, createCombinationClientFromEnv } from '../client/CombinationClient';
+import { CombinationClient, createCombinationClientFromEnv } from '../../client/CombinationClient';
 
 const CombinationClientContext = createContext<CombinationClient | undefined>(undefined);
 

@@ -8,9 +8,10 @@ import Study from './components/Study';
 import Privacy from './components/Privacy';
 import MasterLayout from './components/MasterLayout';
 import { VerbsProvider } from './contexts/useVerbs';
-import { UserClientProvider } from './contexts/useUserClient';
+import { UserClientProvider } from './contexts/clientProviders/useUserClient';
 import { UserProvider } from './contexts/useUser';
-import { CombinationClientProvider } from './contexts/useCombinationClient';
+import { CombinationClientProvider } from './contexts/clientProviders/useCombinationClient';
+import { VerbClientProvider } from './contexts/clientProviders/useVerbClient';
 
 
 function getRandomItem<T>(array: T[]): T | null {
@@ -116,23 +117,25 @@ function App() {
   return (
     <>
       {/* <Passe/> */}
-      <VerbsProvider>
-        <UserClientProvider>
-          <UserProvider>
-            <CombinationClientProvider>
-              <BrowserRouter>
-                <Routes>
-                  <Route element={<MasterLayout />}>
-                    <Route path="/" element={<LearningSpace/>} />
-                    <Route path="/study" element={<Study/>} />
-                    <Route path="/privacy" element={<Privacy/>} />
-                  </Route>
-                </Routes>
-              </BrowserRouter>
-            </CombinationClientProvider>
-          </UserProvider>
-        </UserClientProvider>
-      </VerbsProvider>
+      <VerbClientProvider>
+        <VerbsProvider>
+          <UserClientProvider>
+            <UserProvider>
+              <CombinationClientProvider>
+                <BrowserRouter>
+                  <Routes>
+                    <Route element={<MasterLayout />}>
+                      <Route path="/" element={<LearningSpace/>} />
+                      <Route path="/study" element={<Study/>} />
+                      <Route path="/privacy" element={<Privacy/>} />
+                    </Route>
+                  </Routes>
+                </BrowserRouter>
+              </CombinationClientProvider>
+            </UserProvider>
+          </UserClientProvider>
+        </VerbsProvider>
+      </VerbClientProvider>
     </>
   );
 }

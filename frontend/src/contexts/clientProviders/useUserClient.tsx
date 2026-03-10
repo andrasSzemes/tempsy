@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { createUserClientFromEnv, UserClient } from '../client/UserClient';
+import { createUserClientFromEnv, UserClient } from '../../client/UserClient';
 
 const UserClientContext = createContext<UserClient | undefined>(undefined);
 

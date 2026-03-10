@@ -21,12 +21,14 @@ model Verb {
   name     String
   contexts Context[]
   conjugations Conjugation[]
+  irregulars Irregular[]
 }
 
 model Tense {
   id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String
   conjugations Conjugation[]
+  irregulars  Irregular[]
 }
 
 model Subject {
@@ -54,4 +56,15 @@ model Conjugation {
   tense   Tense   @relation(fields: [tenseId], references: [id], onDelete: Cascade)
 
   @@id([verbId, subjectId, tenseId])
+}
+
+model Irregular {
+  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  verbId  String @map("verb_id") @db.Uuid
+  tenseId String @map("tense_id") @db.Uuid
+
+  verb  Verb  @relation(fields: [verbId], references: [id], onDelete: Cascade)
+  tense Tense @relation(fields: [tenseId], references: [id], onDelete: Cascade)
+
+  @@unique([verbId, tenseId])
 }

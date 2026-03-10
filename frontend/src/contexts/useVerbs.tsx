@@ -1,12 +1,15 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { conjugaisonPasseCompose } from "../tenses/passeCompose/conjugaison";
 import { fetchCombinaisons, type Combinaison } from "../services/combinaisonService";
+import { useVerbClient } from "./clientProviders/useVerbClient";
 
 // Define the shape of the verbs context
 interface VerbsContextType {
+    allVerbs: string[];
   checkedVerbs: { [verb: string]: boolean };
   availableVerbs: string[];
+    irregularByTense: Record<string, string[]>;
+    irregularVerbsForSelectedTense: string[];
   selectedTense: string;
   setSelectedTense: (tense: string) => void;
   setAllCheckStatus: (checked: boolean) => void;
@@ -25,8 +28,42 @@ const VerbsContext = createContext<VerbsContextType | undefined>(undefined);
 
 // Provider component
 export const VerbsProvider = ({ children }: { children: ReactNode }) => {
+    const verbClient = useVerbClient();
+    
     const [taskList, setTaskList] = useState<Combinaison[]>([]);
-    const [selectedTense, setSelectedTense] = useState<string>("passé composé");
+    const [selectedTense, setSelectedTense] = useState<string>("Passé Composé");
+    const [allVerbs, setAllVerbs] = useState<string[]>([]);
+    const [irregularByTense, setIrregularByTense] = useState<Record<string, string[]>>({});
+    const [checkedVerbs, setCheckedVerbs] = useState<{ [verb: string]: boolean }>({});
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const loadVerbData = async () => {
+            try {
+                const [verbs, irregularMap] = await Promise.all([
+                    verbClient.getVerbs(),
+                    verbClient.getIrregularByTense(),
+                ]);
+
+                if (!isMounted) {
+                    return;
+                }
+
+                setAllVerbs(verbs);
+                setIrregularByTense(irregularMap);
+                setCheckedVerbs(Object.fromEntries(verbs.map((verb, index) => [verb, index < 3])));
+            } catch (error) {
+                console.error('Could not load verbs data from backend:', error);
+            }
+        };
+
+        void loadVerbData();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [verbClient]);
 
     async function addSelectedVerbs() {
         try {
@@ -59,16 +96,14 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
 
     console.log("taskList", taskList);
 
-    const [checkedVerbs, setCheckedVerbs] = useState<{ [verb: string]: boolean }>(
-        Object.fromEntries(Object.keys(conjugaisonPasseCompose).map((verb, index) => [verb, index < 3]))
-    );
-
     const availableVerbs = Object.keys(checkedVerbs).filter(v => checkedVerbs[v]);
+
+    const irregularVerbsForSelectedTense = irregularByTense[selectedTense] ?? [];
 
     const setAllCheckStatus = (checked: boolean) => {
         setCheckedVerbs(
             Object.fromEntries(
-                Object.keys(conjugaisonPasseCompose).map((verb) => [verb, checked])
+                allVerbs.map((verb) => [verb, checked])
             )
         );
     };
@@ -77,7 +112,7 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
         setCheckedVerbs((prev) => {
             // Set all verbs to false
             const updated = Object.fromEntries(
-                Object.keys(conjugaisonPasseCompose).map((verb) => [verb, false])
+                allVerbs.map((verb) => [verb, false])
             );
             // Then set only the provided verbs to true
             verbs.forEach((v) => {
@@ -107,9 +142,12 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
 
     return (
       <VerbsContext.Provider value={{
+                allVerbs,
         checkedVerbs,
         toggleVerb,
         availableVerbs,
+                irregularByTense,
+                irregularVerbsForSelectedTense,
         selectedTense,
         setSelectedTense,
         setAllCheckStatus,

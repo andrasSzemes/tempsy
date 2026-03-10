@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { fetchAuthSession, getCurrentUser, signInWithRedirect, signOut } from 'aws-amplify/auth';
 import { hasCognitoSetup } from '../auth/amplify';
-import { useUserClient } from './useUserClient';
+import { useUserClient } from './clientProviders/useUserClient';
 
 type UserContextType = {
   isLoggedIn: boolean;
