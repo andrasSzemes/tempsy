@@ -300,14 +300,16 @@ function MasterLayout() {
       {flashMessage && <FlashMessage>{flashMessage}</FlashMessage>}
       <AppBar>
         <IconGroup $active={isSetupActive}>
-          <IconLink to="/" end>
-            <PostAddIcon />
-          </IconLink>
+          {!isSetupActive && (
+            <IconLink to="/" end>
+              <PostAddIcon />
+            </IconLink>
+          )}
           {isSetupActive && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               {isLoggedIn && (
                 <>
-                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <div style={{ marginTop: '0px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <IconAnchor
                       href="#"
                       aria-label="Random setup"
@@ -401,26 +403,28 @@ function MasterLayout() {
             </div>
           )}
         </IconGroup>
-        <ActionLabel>Setup</ActionLabel>
+        <ActionLabel style={{marginTop: '0px'}}>Setup</ActionLabel>
         <IconGroup $active={isPracticeEnabled && location.pathname === '/study'}>
-          {isPracticeEnabled ? (
-            <IconLink to="/study">
-              <FitnessCenterIcon />
-            </IconLink>
-          ) : (
-            <IconAnchor
-              href="#"
-              aria-label="Practice disabled"
-              aria-disabled="true"
-              onClick={e => e.preventDefault()}
-              style={{ pointerEvents: 'none', opacity: 0.5 }}
-              title="Adj hozzá legalább egy elemet a taskList-hez"
-            >
-              <FitnessCenterIcon sx={{ color: '#888', cursor: 'not-allowed' }} />
-            </IconAnchor>
+          {location.pathname !== '/study' && (
+            isPracticeEnabled ? (
+              <IconLink to="/study">
+                <FitnessCenterIcon />
+              </IconLink>
+            ) : (
+              <IconAnchor
+                href="#"
+                aria-label="Practice disabled"
+                aria-disabled="true"
+                onClick={e => e.preventDefault()}
+                style={{ pointerEvents: 'none', opacity: 0.5 }}
+                title="Adj hozzá legalább egy elemet a taskList-hez"
+              >
+                <FitnessCenterIcon sx={{ color: '#888', cursor: 'not-allowed' }} />
+              </IconAnchor>
+            )
           )}
           {location.pathname === '/study' && taskList.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '6px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '0px' }}>
               <IconAnchor
                 href="#"
                 aria-label="Újrakezdés"
