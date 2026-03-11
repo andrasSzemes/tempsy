@@ -5,12 +5,14 @@ import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import DownloadIcon from '@mui/icons-material/Download';
 import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
 import { hasCognitoSetup } from '../auth/amplify';
 import { useUser } from '../contexts/useUser';
 import { useLocation } from 'react-router-dom';
 import { useVerbs } from '../contexts/useVerbs';
+import { downloadPracticeReportPdf } from '../services/practiceReportPdf';
 
 const LayoutContainer = styled.div`
   width: 100vw;
@@ -105,6 +107,15 @@ function MasterLayout() {
   const isSetupActive = location.pathname === '/';
   const isSetupRestartEnabled = taskList.length > 0;
   const isPracticeEnabled = taskList.length > 0;
+  const solvedTaskCount = taskList.filter((task) => task.isRight !== null).length;
+  const isSummaryEnabled = taskList.length > 0 && solvedTaskCount === taskList.length;
+
+  const handleDownloadPdfReport = async () => {
+    if (!isSummaryEnabled) {
+      return;
+    }
+    await downloadPracticeReportPdf(taskList);
+  };
 
   return (
     <LayoutContainer>
@@ -202,6 +213,23 @@ function MasterLayout() {
                 <RestartAltIcon sx={{ color: isTaskListResetable ? '#d1b48c' : '#888', cursor: isTaskListResetable ? 'pointer' : 'not-allowed' }} />
               </IconAnchor>
               <ActionLabel style={{ marginTop: '3px', color: isTaskListResetable ? 'rgba(255,255,255,0.75)' : '#888' }}>Restart</ActionLabel>
+
+              <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <IconAnchor
+                  href="#"
+                  aria-label="Summary"
+                  onClick={e => {
+                    e.preventDefault();
+                    if (!isSummaryEnabled) return;
+                    void handleDownloadPdfReport();
+                  }}
+                  title="Summary"
+                  style={{ pointerEvents: isSummaryEnabled ? 'auto' : 'none' }}
+                >
+                  <DownloadIcon sx={{ color: isSummaryEnabled ? '#d1b48c' : '#888', cursor: isSummaryEnabled ? 'pointer' : 'not-allowed' }} />
+                </IconAnchor>
+                <ActionLabel style={{ marginTop: '3px', color: isSummaryEnabled ? 'rgba(255,255,255,0.75)' : '#888' }}>Summary</ActionLabel>
+              </div>
             </div>
           )}
         </IconGroup>
