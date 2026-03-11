@@ -109,17 +109,17 @@ function Study() {
   useEffect(() => {
     const currentTask = taskList.find(task => task.id === selectedTaskId);
     const currentTaskExists = !!currentTask;
-    const currentTaskIsRight = currentTask?.isRight === true;
+    const currentTaskIsResolved = currentTask?.isRight !== null;
     
-    if (!currentTaskExists || currentTaskIsRight) {
+    if (!currentTaskExists || currentTaskIsResolved) {
       const currentIndex = taskList.findIndex(task => task.id === selectedTaskId);
       
-      // Try to find next incomplete task after current position
-      let nextIncompleteTask = taskList.slice(currentIndex + 1).find(task => task.isRight !== true);
+      // Try to find next unresolved task after current position
+      let nextIncompleteTask = taskList.slice(currentIndex + 1).find(task => task.isRight === null);
       
-      // If no task after, try to find previous incomplete task
+      // If no task after, try to find previous unresolved task
       if (!nextIncompleteTask && currentIndex > 0) {
-        nextIncompleteTask = taskList.slice(0, currentIndex).reverse().find(task => task.isRight !== true);
+        nextIncompleteTask = taskList.slice(0, currentIndex).reverse().find(task => task.isRight === null);
       }
       
       setSelectedTaskId(nextIncompleteTask ? nextIncompleteTask.id : null);

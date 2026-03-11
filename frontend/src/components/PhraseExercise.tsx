@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import { useEffect, useRef, useState } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useVerbs } from '../contexts/useVerbs';
 import { useUser } from '../contexts/useUser';
 import { usePracticeClient } from '../contexts/clientProviders/usePracticeClient';
@@ -41,12 +41,22 @@ const TenseLabel = styled.div`
   font-style: italic;
 `;
 
-const StyledInput = styled.input<{ $isRight: boolean | null }>`
+const shake = keyframes`
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+  100% { transform: translateX(0); }
+`;
+
+const StyledInput = styled.input<{ $isRight: boolean | null; $isShaking: boolean }>`
   color: ${(props) =>
     props.$isRight === null ? 'rgba(255, 255, 255, 0.87)' : props.$isRight ? 'green' : 'red'};
   border: 1px solid #555;
   border-radius: 4px;
   background: #1f1f1f;
+  animation: ${(props) => (props.$isShaking ? shake : 'none')} 220ms ease-in-out;
 
   &:focus {
     outline: none;
@@ -88,6 +98,7 @@ function PhraseExercise({
   const { isLoggedIn } = useUser();
   const practiceClient = usePracticeClient();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isInputShaking, setIsInputShaking] = useState(false);
 
   const firstPart = phraseToShow.split('(')[0];
   const secondPart = phraseToShow.split(')')[1];
@@ -113,11 +124,32 @@ function PhraseExercise({
     ? capitalizeFirst(conjuguatedVerbWithSubject)
     : conjuguatedVerbWithSubject;
 
+  const triggerInputShake = () => {
+    setIsInputShaking(false);
+    requestAnimationFrame(() => {
+      setIsInputShaking(true);
+    });
+  };
+
   useEffect(() => {
     if (isSelected) {
       inputRef.current?.focus();
     }
   }, [isSelected]);
+
+  useEffect(() => {
+    if (!isInputShaking) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setIsInputShaking(false);
+    }, 240);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [isInputShaking]);
 
   // useEffect(() => {
   //   if (numOfTentatives >= 3 && inputRef.current) {
@@ -150,6 +182,7 @@ function PhraseExercise({
             // }
           }, 1000);
         } else {
+          triggerInputShake();
           if (taskId) {
             const nextAttempts = numOfTentatives + 1;
             updateTaskAttempts(taskId, nextAttempts);
@@ -160,6 +193,7 @@ function PhraseExercise({
           }
         }
       } else {
+        triggerInputShake();
         if (taskId) {
           const nextAttempts = numOfTentatives + 1;
           updateTaskAttempts(taskId, nextAttempts);
@@ -197,6 +231,7 @@ function PhraseExercise({
           <div>
             <StyledInput
               $isRight={isRight}
+              $isShaking={isInputShaking}
               type="text"
               ref={inputRef}
               onKeyDown={handleKeyDown}
