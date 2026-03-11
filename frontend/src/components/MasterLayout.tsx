@@ -6,7 +6,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import DownloadIcon from '@mui/icons-material/Download';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
 import { hasCognitoSetup } from '../auth/amplify';
@@ -199,7 +199,7 @@ function MasterLayout() {
             </IconAnchor>
           )}
           {location.pathname === '/study' && taskList.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '6px' }}>
               <IconAnchor
                 href="#"
                 aria-label="Újrakezdés"
@@ -227,7 +227,7 @@ function MasterLayout() {
                   title="Summary"
                   style={{ pointerEvents: isSummaryEnabled ? 'auto' : 'none' }}
                 >
-                  <DownloadIcon sx={{ color: isSummaryEnabled ? '#d1b48c' : '#888', cursor: isSummaryEnabled ? 'pointer' : 'not-allowed' }} />
+                  <PictureAsPdfIcon sx={{ color: isSummaryEnabled ? '#d1b48c' : '#888', cursor: isSummaryEnabled ? 'pointer' : 'not-allowed' }} />
                 </IconAnchor>
                 <ActionLabel style={{ marginTop: '3px', color: isSummaryEnabled ? 'rgba(255,255,255,0.75)' : '#888' }}>Summary</ActionLabel>
               </div>
