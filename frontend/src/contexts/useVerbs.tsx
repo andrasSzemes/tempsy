@@ -21,6 +21,7 @@ interface VerbsContextType {
     emptyTaskList: () => void;
     resetTaskList: () => void;
     removeTask: (taskId: string) => void;
+    importTasks: (tasks: Combinaison[]) => void;
     isTaskListResetable: boolean;
     updateTaskAttempts: (taskId: string, numOfTentatives: number) => void;
     updateTaskIsRight: (taskId: string, isRight: boolean | null) => void;
@@ -84,6 +85,27 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
 
     function removeTask(taskId: string) {
         setTaskList((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    }
+
+    function importTasks(tasks: Combinaison[]) {
+        setTaskList((prevTasks) => {
+            const keyOf = (task: Combinaison) =>
+                `${task.verb.trim().toLowerCase()}|${task.subject.trim().toLowerCase()}|${task.tense.trim().toLowerCase()}`;
+
+            const existingKeys = new Set(prevTasks.map(keyOf));
+            const toAdd: Combinaison[] = [];
+
+            for (const task of tasks) {
+                const key = keyOf(task);
+                if (existingKeys.has(key)) {
+                    continue;
+                }
+                existingKeys.add(key);
+                toAdd.push(task);
+            }
+
+            return [...prevTasks, ...toAdd];
+        });
     }
 
     function updateTaskAttempts(taskId: string, numOfTentatives: number) {
@@ -170,6 +192,7 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
                 emptyTaskList,
                 resetTaskList,
                 removeTask,
+                importTasks,
                 isTaskListResetable,
                 updateTaskAttempts,
                 updateTaskIsRight
