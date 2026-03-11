@@ -3,4 +3,5 @@ export type TokenClaims = {
   email?: unknown;
   name?: unknown;
   identities?: unknown;
+  user_id?: unknown;
 };

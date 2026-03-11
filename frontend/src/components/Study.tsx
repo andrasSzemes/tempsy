@@ -52,9 +52,6 @@ function Study() {
   return (
     <Container>
       <MainContent>
-        {taskList.length > 0 && (
-          <span style={{fontSize: '16px', color: '#d1b48c', marginBottom: '12px', fontWeight: 500}}>Setup</span>
-        )}
         {taskList.length > 0 ? (
           taskList.map((task, index) => (
             <PhraseExercise

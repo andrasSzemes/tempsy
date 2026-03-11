@@ -15,6 +15,8 @@ interface VerbsContextType {
     forceSelectVerbList: (verbs: string[]) => void;
     toggleVerb: (verb: string) => void;
     addSelectedVerbs: () => Promise<void>;
+    isTailoredSetupEnabled: boolean;
+    setTailoredSetupEnabled: (enabled: boolean) => void;
     taskList: Combinaison[];
     emptyTaskList: () => void;
     resetTaskList: () => void;
@@ -33,6 +35,7 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
     const [taskList, setTaskList] = useState<Combinaison[]>([]);
     const [selectedTense, setSelectedTense] = useState<string>("Passé Composé");
     const [checkedVerbs, setCheckedVerbs] = useState<{ [verb: string]: boolean }>({});
+    const [isTailoredSetupEnabled, setTailoredSetupEnabled] = useState(false);
 
     useEffect(() => {
         if (allVerbs.length === 0) {
@@ -57,7 +60,7 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
 
     async function addSelectedVerbs() {
         try {
-            const tasks = await fetchCombinaisons(selectedTense, availableVerbs);
+            const tasks = await fetchCombinaisons(selectedTense, availableVerbs, isTailoredSetupEnabled);
             setTaskList((prevTasks) => [...prevTasks, ...tasks]);
         } catch (error) {
             console.error('Could not generate combinations from backend:', error);
@@ -156,6 +159,8 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
                 toggleVerbList,
                 forceSelectVerbList,
                 addSelectedVerbs,
+                isTailoredSetupEnabled,
+                setTailoredSetupEnabled,
                 taskList,
                 emptyTaskList,
                 resetTaskList,

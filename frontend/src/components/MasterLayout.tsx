@@ -5,6 +5,8 @@ import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
 import { hasCognitoSetup } from '../auth/amplify';
 import { useUser } from '../contexts/useUser';
 import { useLocation } from 'react-router-dom';
@@ -91,42 +93,119 @@ const ActionLabel = styled.span`
 
 function MasterLayout() {
   const { isLoggedIn, login, logout } = useUser();
-  const { resetTaskList, taskList, isTaskListResetable } = useVerbs();
+  const {
+    emptyTaskList,
+    resetTaskList,
+    taskList,
+    isTaskListResetable,
+    isTailoredSetupEnabled,
+    setTailoredSetupEnabled,
+  } = useVerbs();
   const location = useLocation();
+  const isSetupActive = location.pathname === '/';
+  const isSetupRestartEnabled = taskList.length > 0;
+  const isPracticeEnabled = taskList.length > 0;
 
   return (
     <LayoutContainer>
       <AppBar>
-        <IconLink to="/" end>
-          <PostAddIcon />
-        </IconLink>
-          <ActionLabel>Setup</ActionLabel>
-        <IconGroup $active={location.pathname === '/study'}>
-          <IconLink to="/study">
-            <FitnessCenterIcon />
+        <IconGroup $active={isSetupActive}>
+          <IconLink to="/" end>
+            <PostAddIcon />
           </IconLink>
-          {location.pathname === '/study' && taskList.length > 0 && (
-            <IconAnchor
-              href="#"
-              aria-label="Újrakezdés"
-              onClick={e => {
-                e.preventDefault();
-                if (!isTaskListResetable) return;
-                resetTaskList();
-              }}
-              title="Újrakezdés"
-              style={{ pointerEvents: isTaskListResetable ? 'auto' : 'none' }}
-            >
-              <RestartAltIcon sx={{ color: isTaskListResetable ? '#d1b48c' : '#888', cursor: isTaskListResetable ? 'pointer' : 'not-allowed' }} />
-            </IconAnchor>
+          {isSetupActive && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              {isLoggedIn && (
+                <>
+                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <IconAnchor
+                      href="#"
+                      aria-label="Random setup"
+                      onClick={e => {
+                        e.preventDefault();
+                        setTailoredSetupEnabled(false);
+                      }}
+                      title="Random"
+                    >
+                      <ShuffleIcon sx={{ color: !isTailoredSetupEnabled ? '#d1b48c' : '#888', cursor: 'pointer' }} />
+                    </IconAnchor>
+                    <ActionLabel style={{ marginTop: '3px', color: !isTailoredSetupEnabled ? 'rgba(255,255,255,0.75)' : '#888' }}>
+                      Random
+                    </ActionLabel>
+                  </div>
+                  <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <IconAnchor
+                      href="#"
+                      aria-label="Tailored setup"
+                      onClick={e => {
+                        e.preventDefault();
+                        setTailoredSetupEnabled(true);
+                      }}
+                      title="Tailored"
+                    >
+                      <PsychologyAltIcon sx={{ color: isTailoredSetupEnabled ? '#d1b48c' : '#888', cursor: 'pointer' }} />
+                    </IconAnchor>
+                    <ActionLabel style={{ marginTop: '3px', color: isTailoredSetupEnabled ? 'rgba(255,255,255,0.75)' : '#888' }}>
+                      Tailored
+                    </ActionLabel>
+                  </div>
+                </>
+              )}
+              <IconAnchor
+                href="#"
+                aria-label="Újrakezdés setup"
+                onClick={e => {
+                  e.preventDefault();
+                  if (!isSetupRestartEnabled) return;
+                  emptyTaskList();
+                }}
+                title="Újrakezdés"
+                style={{ pointerEvents: isSetupRestartEnabled ? 'auto' : 'none' }}
+              >
+                <RestartAltIcon sx={{ color: isSetupRestartEnabled ? '#d1b48c' : '#888', cursor: isSetupRestartEnabled ? 'pointer' : 'not-allowed' }} />
+              </IconAnchor>
+              <ActionLabel style={{ marginTop: '3px', color: isSetupRestartEnabled ? 'rgba(255,255,255,0.75)' : '#888' }}>Restart</ActionLabel>
+            </div>
           )}
         </IconGroup>
-        {location.pathname === '/study' && (
-          <ActionLabel>Practice</ActionLabel>
-        )}
-        {location.pathname !== '/study' && (
-          <ActionLabel>Practice</ActionLabel>
-        )}
+        <ActionLabel>Setup</ActionLabel>
+        <IconGroup $active={isPracticeEnabled && location.pathname === '/study'}>
+          {isPracticeEnabled ? (
+            <IconLink to="/study">
+              <FitnessCenterIcon />
+            </IconLink>
+          ) : (
+            <IconAnchor
+              href="#"
+              aria-label="Practice disabled"
+              aria-disabled="true"
+              onClick={e => e.preventDefault()}
+              style={{ pointerEvents: 'none', opacity: 0.5 }}
+              title="Adj hozzá legalább egy elemet a taskList-hez"
+            >
+              <FitnessCenterIcon sx={{ color: '#888', cursor: 'not-allowed' }} />
+            </IconAnchor>
+          )}
+          {location.pathname === '/study' && taskList.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <IconAnchor
+                href="#"
+                aria-label="Újrakezdés"
+                onClick={e => {
+                  e.preventDefault();
+                  if (!isTaskListResetable) return;
+                  resetTaskList();
+                }}
+                title="Újrakezdés"
+                style={{ pointerEvents: isTaskListResetable ? 'auto' : 'none' }}
+              >
+                <RestartAltIcon sx={{ color: isTaskListResetable ? '#d1b48c' : '#888', cursor: isTaskListResetable ? 'pointer' : 'not-allowed' }} />
+              </IconAnchor>
+              <ActionLabel style={{ marginTop: '3px', color: isTaskListResetable ? 'rgba(255,255,255,0.75)' : '#888' }}>Restart</ActionLabel>
+            </div>
+          )}
+        </IconGroup>
+        <ActionLabel style={{ color: isPracticeEnabled ? 'rgba(255, 255, 255, 0.75)' : '#888' }}>Practice</ActionLabel>
         {hasCognitoSetup && (
           <BottomAction>
             <IconAnchor

@@ -14,6 +14,7 @@ model User {
   email             String   @unique
   name              String?
   createdAt         DateTime @default(now())
+  practices         Practice[]
 }
 
 model Verb {
@@ -22,6 +23,7 @@ model Verb {
   contexts Context[]
   conjugations Conjugation[]
   irregulars Irregular[]
+  practices Practice[]
 }
 
 model Tense {
@@ -30,12 +32,29 @@ model Tense {
   conjugations Conjugation[]
   irregulars  Irregular[]
   timeMarkers TimeMarker[]
+  practices   Practice[]
 }
 
 model Subject {
   id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String
   conjugations Conjugation[]
+  practices   Practice[]
+}
+
+model Practice {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id")
+  verbId    String   @map("verb_id") @db.Uuid
+  tenseId   String   @map("tense_id") @db.Uuid
+  subjectId String   @map("subject_id") @db.Uuid
+  success   Boolean
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verb    Verb    @relation(fields: [verbId], references: [id], onDelete: Cascade)
+  tense   Tense   @relation(fields: [tenseId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 }
 
 model Context {

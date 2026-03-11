@@ -1,6 +1,9 @@
+import { fetchAuthSession } from 'aws-amplify/auth';
+
 export type GenerateCombinationsInput = {
   tense: string;
   verbs: string[];
+  personalised?: boolean;
 };
 
 export type GeneratedCombinationItem = {
@@ -23,11 +26,21 @@ export class CombinationClient {
   }
 
   async generateCombinations(input: GenerateCombinationsInput): Promise<GeneratedCombinationItem[]> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    if (input.personalised === true) {
+      const session = await fetchAuthSession();
+      const bearerToken = session.tokens?.idToken?.toString();
+      if (bearerToken) {
+        headers.Authorization = `Bearer ${bearerToken}`;
+      }
+    }
+
     const response = await fetch(`${this.baseUrl}/api/combinations/generate`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(input),
     });
 

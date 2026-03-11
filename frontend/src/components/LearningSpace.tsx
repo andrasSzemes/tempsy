@@ -66,8 +66,9 @@ const MainContent = styled.div`
 
 const NoVerbsMessage = styled.div`
   padding: 2em;
-  color: gray;
+  color: #fff;
   margin: auto;
+  user-select: none;
 `;
 
 const Container = styled.div`
@@ -77,15 +78,12 @@ const Container = styled.div`
 `;
 
 function LearningSpace() {
-    const { availableVerbs, addSelectedVerbs, taskList, emptyTaskList } = useVerbs();
+    const { availableVerbs, addSelectedVerbs, taskList } = useVerbs();
 
     return (
       <Container>
         <VerbSelector />
         <AddContainer>
-          {taskList.length > 0 && (
-            <DeleteIcon sx={{ position: 'absolute', top: 16, cursor: 'pointer', color: '#d1b48c' }} onClick={() => emptyTaskList()} />
-          )}
           <Add onClick={() => void addSelectedVerbs()}>
             <div>Click to add</div>
             <div>for practice</div>

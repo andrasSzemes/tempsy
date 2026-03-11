@@ -13,6 +13,7 @@ import { UserProvider } from './contexts/useUser';
 import { CombinationClientProvider } from './contexts/clientProviders/useCombinationClient';
 import { VerbClientProvider } from './contexts/clientProviders/useVerbClient';
 import { LanguageProvider } from './contexts/useLanguage';
+import { PracticeClientProvider } from './contexts/clientProviders/usePracticeClient';
 
 
 function getRandomItem<T>(array: T[]): T | null {
@@ -117,25 +118,26 @@ function App() {
 
   return (
     <>
-      {/* <Passe/> */}
       <UserClientProvider>
         <CombinationClientProvider>
           <VerbClientProvider>
-            <UserProvider>
-              <LanguageProvider>
-                <VerbsProvider>
-                  <BrowserRouter>
-                    <Routes>
-                      <Route element={<MasterLayout />}>
-                        <Route path="/" element={<LearningSpace />} />
-                        <Route path="/study" element={<Study />} />
-                        <Route path="/privacy" element={<Privacy />} />
-                      </Route>
-                    </Routes>
-                  </BrowserRouter>
-                </VerbsProvider>
-              </LanguageProvider>
-            </UserProvider>
+            <PracticeClientProvider>
+              <UserProvider>
+                <LanguageProvider>
+                  <VerbsProvider>
+                    <BrowserRouter>
+                      <Routes>
+                        <Route element={<MasterLayout />}>
+                          <Route path="/" element={<LearningSpace />} />
+                          <Route path="/study" element={<Study />} />
+                          <Route path="/privacy" element={<Privacy />} />
+                        </Route>
+                      </Routes>
+                    </BrowserRouter>
+                  </VerbsProvider>
+                </LanguageProvider>
+              </UserProvider>
+            </PracticeClientProvider>
           </VerbClientProvider>
         </CombinationClientProvider>
       </UserClientProvider>

@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useVerbs } from '../contexts/useVerbs';
+import { useUser } from '../contexts/useUser';
+import { usePracticeClient } from '../contexts/clientProviders/usePracticeClient';
 
 const Phrase = styled.div<{ onClick?: () => void; $isRight?: boolean | null }>`
   display: flex;
@@ -79,12 +81,29 @@ function PhraseExercise({
   onClick,
 }: PhraseExerciseProps) {
   const { updateTaskAttempts, updateTaskIsRight } = useVerbs();
+  const { isLoggedIn } = useUser();
+  const practiceClient = usePracticeClient();
   const inputRef = useRef<HTMLInputElement>(null);
-
-  console.log('tense', tense);
 
   const firstPart = phraseToShow.split('(')[0];
   const secondPart = phraseToShow.split(')')[1];
+  const isResolved = isRight !== null;
+  const canTypeAnswer = isSelected && isRight === null;
+
+  const sendPracticeResult = (success: boolean) => {
+    if (!isLoggedIn) {
+      return;
+    }
+
+    void practiceClient.savePractice({
+      verb,
+      tense,
+      subject,
+      success,
+    }).catch((error) => {
+      console.error('Could not save practice result:', error);
+    });
+  };
   
   const displayConjugation = firstPart === '' 
     ? capitalizeFirst(conjuguatedVerbWithSubject)
@@ -103,15 +122,16 @@ function PhraseExercise({
   //   }
   // }, [numOfTentatives, conjuguatedVerbWithSubject, taskId, updateTaskIsRight]);
 
-  console.log("numOfTentatives", numOfTentatives)
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && inputRef.current) {
       if (inputRef.current.value.length > 0) {
         if (
           conjuguatedVerbWithSubject == inputRef.current.value.toLowerCase()
         ) {
-          if (taskId) updateTaskIsRight(taskId, true);
+          if (taskId) {
+            updateTaskIsRight(taskId, true);
+            sendPracticeResult(true);
+          }
           setTimeout(() => {
             // nextCombinaison();
             // TODO CHECK IF WORKS
@@ -127,14 +147,23 @@ function PhraseExercise({
           }, 1000);
         } else {
           if (taskId) {
-            updateTaskAttempts(taskId, numOfTentatives + 1);
-            if (numOfTentatives + 1 >= 3) {
+            const nextAttempts = numOfTentatives + 1;
+            updateTaskAttempts(taskId, nextAttempts);
+            if (nextAttempts >= 3) {
               updateTaskIsRight(taskId, false);
+              sendPracticeResult(false);
             }
           }
         }
       } else {
-        if (taskId) updateTaskAttempts(taskId, numOfTentatives + 1);
+        if (taskId) {
+          const nextAttempts = numOfTentatives + 1;
+          updateTaskAttempts(taskId, nextAttempts);
+          if (nextAttempts >= 3) {
+            updateTaskIsRight(taskId, false);
+            sendPracticeResult(false);
+          }
+        }
       }
     }
   };
@@ -144,21 +173,21 @@ function PhraseExercise({
       <div>{firstPart}</div>
 
 
-      {(isRight || isRight === false) && (
+      {isResolved && (
         <CollapsedReplace>
           <div style={{color: isRight ? 'green' : 'red'}}>{displayConjugation}</div>
           <TenseLabel>{tense}</TenseLabel>
         </CollapsedReplace>
       )}
 
-      {!isRight && !isSelected && (
+      {!isResolved && !isSelected && (
         <CollapsedReplace>
           <div>({!isRight ? subject + ', ' + verb : '‎'})</div>
           <TenseLabel>{tense}</TenseLabel>
         </CollapsedReplace>
       )}
 
-      {!isRight && isSelected && (
+      {canTypeAnswer && (
         <ActivePartContainer>
           <Replace>{!isRight ? subject + ', ' + verb : '‎'}</Replace>
           <div>

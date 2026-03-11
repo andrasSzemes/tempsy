@@ -3,6 +3,7 @@ import cors from 'cors';
 import combinationsRouter from './routes/combinations.js';
 import usersRouter from './routes/users.js';
 import verbsRouter from './routes/verbs.js';
+import practiceRouter from './routes/practice.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -23,6 +24,7 @@ app.get('/api/health', (req: Request, res: Response) => {
 app.use('/api/users', usersRouter);
 app.use('/api/combinations', combinationsRouter);
 app.use('/api/verbs', verbsRouter);
+app.use('/api/practice', practiceRouter);
 
 // Start server
 app.listen(PORT, () => {
