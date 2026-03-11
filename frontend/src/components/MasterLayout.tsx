@@ -4,6 +4,7 @@ import PostAddIcon from '@mui/icons-material/PostAdd';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import DownloadIcon from '@mui/icons-material/Download';
 import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
@@ -236,6 +237,14 @@ function MasterLayout() {
         <ActionLabel style={{ color: isPracticeEnabled ? 'rgba(255, 255, 255, 0.75)' : '#888' }}>Practice</ActionLabel>
         {hasCognitoSetup && (
           <BottomAction>
+            {isLoggedIn && (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <IconLink to="/statistics" aria-label="Statistics">
+                  <QueryStatsIcon sx={{ color: '#fff' }} />
+                </IconLink>
+                <ActionLabel style={{ color: 'rgba(255, 255, 255, 0.75)' }}>Statistics</ActionLabel>
+              </div>
+            )}
             <IconAnchor
               href="#"
               aria-label={isLoggedIn ? 'Logout' : 'Login'}

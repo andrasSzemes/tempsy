@@ -7,6 +7,7 @@ import LearningSpace from './components/LearningSpace';
 import Study from './components/Study';
 import Privacy from './components/Privacy';
 import MasterLayout from './components/MasterLayout';
+import Statistics from './components/Statistics';
 import { VerbsProvider } from './contexts/useVerbs';
 import { UserClientProvider } from './contexts/clientProviders/useUserClient';
 import { UserProvider } from './contexts/useUser';
@@ -130,6 +131,7 @@ function App() {
                         <Route element={<MasterLayout />}>
                           <Route path="/" element={<LearningSpace />} />
                           <Route path="/study" element={<Study />} />
+                          <Route path="/statistics" element={<Statistics />} />
                           <Route path="/privacy" element={<Privacy />} />
                         </Route>
                       </Routes>
