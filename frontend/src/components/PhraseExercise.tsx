@@ -9,6 +9,7 @@ const Phrase = styled.div<{ onClick?: () => void; $isRight?: boolean | null }>`
   align-items: end;
   margin: 32px 0px;
   cursor: ${props => props.onClick && props.$isRight !== true ? 'pointer' : 'default'};
+  user-select: none;
 `;
 
 const ActivePartContainer = styled.div`
@@ -18,16 +19,19 @@ const ActivePartContainer = styled.div`
   position: relative;
   padding: 0 8px;
   font-weight: bold;
+  user-select: none;
 `;
 
 const Replace = styled.div`
   font-style: italic;
+  user-select: none;
 `;
 
 const CollapsedReplace = styled(Replace)`
   padding: 0 8px;
   font-weight: bold;
   position: relative;
+  user-select: none;
 `;
 
 const TenseLabel = styled.div`
@@ -39,6 +43,7 @@ const TenseLabel = styled.div`
   right: 0;
   white-space: nowrap;
   font-style: italic;
+  user-select: none;
 `;
 
 const shake = keyframes`
@@ -208,19 +213,19 @@ function PhraseExercise({
 
   return (
     <Phrase onClick={isRight === true ? undefined : onClick} $isRight={isRight}>
-      <div>{firstPart}</div>
+      <div style={{ userSelect: 'none' }}>{firstPart}</div>
 
 
       {isResolved && (
         <CollapsedReplace>
-          <div style={{color: isRight ? 'green' : 'red'}}>{displayConjugation}</div>
+          <div style={{color: isRight ? 'green' : 'red', userSelect: 'none'}}>{displayConjugation}</div>
           <TenseLabel>{tense}</TenseLabel>
         </CollapsedReplace>
       )}
 
       {!isResolved && !isSelected && (
         <CollapsedReplace>
-          <div>({!isRight ? subject + ', ' + verb : '‎'})</div>
+          <div style={{ userSelect: 'none' }}>({!isRight ? subject + ', ' + verb : '‎'})</div>
           <TenseLabel>{tense}</TenseLabel>
         </CollapsedReplace>
       )}
@@ -240,7 +245,7 @@ function PhraseExercise({
           <TenseLabel>{tense}</TenseLabel>
         </ActivePartContainer>
       )}
-      <div>{secondPart}</div>
+      <div style={{ userSelect: 'none' }}>{secondPart}</div>
     </Phrase>
   );
 }

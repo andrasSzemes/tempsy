@@ -174,7 +174,7 @@ function MasterLayout() {
                 title="Újrakezdés"
                 style={{ pointerEvents: isSetupRestartEnabled ? 'auto' : 'none' }}
               >
-                <RestartAltIcon sx={{ color: isSetupRestartEnabled ? '#d1b48c' : '#888', cursor: isSetupRestartEnabled ? 'pointer' : 'not-allowed' }} />
+                <RestartAltIcon sx={{ color: isSetupRestartEnabled ? '#ffffff' : '#888', cursor: isSetupRestartEnabled ? 'pointer' : 'not-allowed' }} />
               </IconAnchor>
               <ActionLabel style={{ marginTop: '3px', color: isSetupRestartEnabled ? 'rgba(255,255,255,0.75)' : '#888' }}>Restart</ActionLabel>
             </div>

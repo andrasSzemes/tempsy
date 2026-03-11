@@ -165,7 +165,7 @@ function Study() {
           ))
         ) : (
           <NoVerbsMessage>
-            No practice tasks yet. Go to Learning Space to add verbs for practice.
+            No practice tasks yet. Go to Setup to add verbs for practice.
           </NoVerbsMessage>
         )}
       </MainContent>

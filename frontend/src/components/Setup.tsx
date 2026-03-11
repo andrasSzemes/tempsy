@@ -77,8 +77,46 @@ const Container = styled.div`
   height: 100%;
 `;
 
-function LearningSpace() {
-    const { availableVerbs, addSelectedVerbs, taskList } = useVerbs();
+const TaskRow = styled.div`
+  width: 100%;
+  max-width: 980px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #c78d86;
+  }
+`;
+
+const DeleteBadge = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  color: #b66f67;
+`;
+
+const RowDeleteIcon = styled(DeleteIcon)`
+  font-size: 18px !important;
+`;
+
+const TaskRowInner = styled.div`
+  display: flex;
+  justify-content: center;
+
+  ${TaskRow}:hover & + ${DeleteBadge} {
+    opacity: 1;
+  }
+`;
+
+function Setup() {
+    const { availableVerbs, addSelectedVerbs, taskList, removeTask } = useVerbs();
 
     return (
       <Container>
@@ -92,17 +130,23 @@ function LearningSpace() {
         </AddContainer>
         <MainContent>
           {taskList.length > 0 ? (
-            taskList.map((task, index) => (
-              <PhraseExercise
-                isSelected={false}
-                key={task.id}
-                phraseToShow={task.phraseToShow}
-                verb={task.verb}
-                subject={task.subject}
-                conjuguatedVerbWithSubject={task.conjuguatedVerbWithSubject}
-                availableVerbs={availableVerbs}
-                tense={task.tense}
-              />
+            taskList.map((task) => (
+              <TaskRow key={task.id} onClick={() => removeTask(task.id)} title="Remove task">
+                <TaskRowInner>
+                  <PhraseExercise
+                    isSelected={false}
+                    phraseToShow={task.phraseToShow}
+                    verb={task.verb}
+                    subject={task.subject}
+                    conjuguatedVerbWithSubject={task.conjuguatedVerbWithSubject}
+                    availableVerbs={availableVerbs}
+                    tense={task.tense}
+                  />
+                </TaskRowInner>
+                <DeleteBadge>
+                  <RowDeleteIcon />
+                </DeleteBadge>
+              </TaskRow>
             ))
           ) : (
             <NoVerbsMessage>
@@ -114,5 +158,5 @@ function LearningSpace() {
     );
 }
 
-export default LearningSpace
+export default Setup
 

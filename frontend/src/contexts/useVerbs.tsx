@@ -20,6 +20,7 @@ interface VerbsContextType {
     taskList: Combinaison[];
     emptyTaskList: () => void;
     resetTaskList: () => void;
+    removeTask: (taskId: string) => void;
     isTaskListResetable: boolean;
     updateTaskAttempts: (taskId: string, numOfTentatives: number) => void;
     updateTaskIsRight: (taskId: string, isRight: boolean | null) => void;
@@ -79,6 +80,10 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
                 isRight: null,
             }))
         );
+    }
+
+    function removeTask(taskId: string) {
+        setTaskList((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
     }
 
     function updateTaskAttempts(taskId: string, numOfTentatives: number) {
@@ -164,6 +169,7 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
                 taskList,
                 emptyTaskList,
                 resetTaskList,
+                removeTask,
                 isTaskListResetable,
                 updateTaskAttempts,
                 updateTaskIsRight

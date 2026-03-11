@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { examples, conjugaison } from './tenses/conditionel/conditionel';
 import './App.css'
 import Passe from './_maybe-usefull-later/Passe';
-import LearningSpace from './components/LearningSpace';
+import Setup from './components/Setup';
 import Study from './components/Study';
 import Privacy from './components/Privacy';
 import MasterLayout from './components/MasterLayout';
@@ -129,7 +129,7 @@ function App() {
                     <BrowserRouter>
                       <Routes>
                         <Route element={<MasterLayout />}>
-                          <Route path="/" element={<LearningSpace />} />
+                          <Route path="/" element={<Setup />} />
                           <Route path="/study" element={<Study />} />
                           <Route path="/statistics" element={<Statistics />} />
                           <Route path="/privacy" element={<Privacy />} />
