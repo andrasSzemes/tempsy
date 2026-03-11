@@ -436,7 +436,7 @@ function MasterLayout() {
                 title="Újrakezdés"
                 style={{ pointerEvents: isTaskListResetable ? 'auto' : 'none' }}
               >
-                <RestartAltIcon sx={{ color: isTaskListResetable ? '#d1b48c' : '#888', cursor: isTaskListResetable ? 'pointer' : 'not-allowed' }} />
+                <RestartAltIcon sx={{ color: isTaskListResetable ? '#ffffff' : '#888', cursor: isTaskListResetable ? 'pointer' : 'not-allowed' }} />
               </IconAnchor>
               <ActionLabel style={{ marginTop: '3px', color: isTaskListResetable ? 'rgba(255,255,255,0.75)' : '#888' }}>Restart</ActionLabel>
 
@@ -452,7 +452,7 @@ function MasterLayout() {
                   title="Summary"
                   style={{ pointerEvents: isSummaryEnabled ? 'auto' : 'none' }}
                 >
-                  <PictureAsPdfIcon sx={{ color: isSummaryEnabled ? '#d1b48c' : '#888', cursor: isSummaryEnabled ? 'pointer' : 'not-allowed' }} />
+                  <PictureAsPdfIcon sx={{ color: isSummaryEnabled ? '#ffffff' : '#888', cursor: isSummaryEnabled ? 'pointer' : 'not-allowed' }} />
                 </IconAnchor>
                 <ActionLabel style={{ marginTop: '3px', color: isSummaryEnabled ? 'rgba(255,255,255,0.75)' : '#888' }}>Summary</ActionLabel>
               </div>
@@ -469,7 +469,7 @@ function MasterLayout() {
                   title="Missed"
                   style={{ pointerEvents: isSummaryEnabled ? 'auto' : 'none' }}
                 >
-                  <DownloadIcon sx={{ color: isSummaryEnabled ? '#d1b48c' : '#888', cursor: isSummaryEnabled ? 'pointer' : 'not-allowed' }} />
+                  <DownloadIcon sx={{ color: isSummaryEnabled ? '#ffffff' : '#888', cursor: isSummaryEnabled ? 'pointer' : 'not-allowed' }} />
                 </IconAnchor>
                 <ActionLabel style={{ marginTop: '3px', color: isSummaryEnabled ? 'rgba(255,255,255,0.75)' : '#888' }}>Missed</ActionLabel>
               </div>
