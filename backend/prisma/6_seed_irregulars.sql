@@ -50,6 +50,7 @@ FROM (
     ('cuire', 'Passé Composé'),
     ('resoudre', 'Passé Composé'),
     ('absoudre', 'Passé Composé'),
+    
     ('acheter', 'Présent'),
     ('aller', 'Présent'),
     ('appeler', 'Présent'),
@@ -98,7 +99,43 @@ FROM (
     ('venir', 'Présent'),
     ('vivre', 'Présent'),
     ('voir', 'Présent'),
-    ('vouloir', 'Présent')
+    ('vouloir', 'Présent'),
+
+    ('être', 'Imparfait'),
+    ('manger', 'Imparfait'),
+    ('nager', 'Imparfait'),
+    ('voyager', 'Imparfait'),
+    ('changer', 'Imparfait'),
+    ('ranger', 'Imparfait'),
+    ('partager', 'Imparfait'),
+    ('corriger', 'Imparfait'),
+    ('protéger', 'Imparfait'),
+    ('interroger', 'Imparfait'),
+    ('déménager', 'Imparfait'),
+    ('commencer', 'Imparfait'),
+    ('placer', 'Imparfait'),
+    ('annoncer', 'Imparfait'),
+    ('avancer', 'Imparfait'),
+    ('lancer', 'Imparfait'),
+    ('prononcer', 'Imparfait'),
+    ('renoncer', 'Imparfait'),
+    ('effacer', 'Imparfait'),
+    ('menacer', 'Imparfait'),
+    ('tracer', 'Imparfait'),
+    ('étudier', 'Imparfait'),
+    ('crier', 'Imparfait'),
+    ('prier', 'Imparfait'),
+    ('oublier', 'Imparfait'),
+    ('marier', 'Imparfait'),
+    ('copier', 'Imparfait'),
+    ('publier', 'Imparfait'),
+    ('appuyer', 'Imparfait'),
+    ('ennuyer', 'Imparfait'),
+    ('nettoyer', 'Imparfait'),
+
+    ('s’interroger', 'Imparfait'),
+    ('s’ennuyer', 'Imparfait'),
+    ('se marier', 'Imparfait')
 ) AS i("verb_name", "tense_name")
 JOIN "Verb" v ON v."name" = i."verb_name"
 JOIN "Tense" t ON t."name" = i."tense_name"
