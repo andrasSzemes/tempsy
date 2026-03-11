@@ -15,6 +15,9 @@ const ActivePartContainer = styled.div`
   margin: 0px 5px;
   display: flex;
   flex-direction: column;
+  position: relative;
+  padding: 0 8px;
+  font-weight: bold;
 `;
 
 const Replace = styled.div`
@@ -35,6 +38,7 @@ const TenseLabel = styled.div`
   left: 0;
   right: 0;
   white-space: nowrap;
+  font-style: italic;
 `;
 
 const StyledInput = styled.input<{ $isRight: boolean | null }>`
@@ -198,6 +202,7 @@ function PhraseExercise({
               onKeyDown={handleKeyDown}
             />
           </div>
+          <TenseLabel>{tense}</TenseLabel>
         </ActivePartContainer>
       )}
       <div>{secondPart}</div>
