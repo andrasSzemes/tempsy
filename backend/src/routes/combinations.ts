@@ -1,7 +1,12 @@
 import { Router, Request, Response } from 'express';
-import { Prisma } from '@prisma/client';
-import prisma from '../lib/prisma.js';
 import type { TokenClaims } from '../types/TokenClaims.js';
+import {
+  findCombinationsByTenseAndVerbs,
+  findPersonalisedCombinationsByTenseAndVerbs,
+} from '../repositories/combinationsRepository.js';
+import { findTimeMarkersByTenseId, type TimeMarkerRow } from '../repositories/timeMarkersRepository.js';
+import { findTenseByName } from '../repositories/tensesRepository.js';
+import { findUserIdByProviderSub, type AuthProvider } from '../repositories/usersRepository.js';
 
 type GenerateCombinationsBody = {
   tense?: unknown;
@@ -10,24 +15,6 @@ type GenerateCombinationsBody = {
 };
 
 const combinationsRouter = Router();
-
-type TenseLookupRow = {
-  id: string;
-  name: string;
-};
-
-type CombinationRow = {
-  verb: string;
-  subject: string;
-  conjuguatedVerbWithSubject: string;
-  phraseToShow: string;
-  tense: string;
-};
-
-type TimeMarkerRow = {
-  placement: 'beginningOfSentence' | 'endOfSentence';
-  text: string;
-};
 
 function getRandomItem<T>(items: T[]): T {
   const index = Math.floor(Math.random() * items.length);
@@ -102,7 +89,7 @@ function decodeJwtPayload(token: string): TokenClaims | null {
   }
 }
 
-function resolveAuthProvider(claims: TokenClaims): 'registry' | 'google' {
+function resolveAuthProvider(claims: TokenClaims): AuthProvider {
   if (!Array.isArray(claims.identities)) {
     return 'registry';
   }
@@ -152,19 +139,11 @@ combinationsRouter.post('/generate', async (req: Request<unknown, unknown, Gener
 
   try {
     const trimmedTense = tense.trim();
-    const tenseRows = await prisma.$queryRaw<TenseLookupRow[]>`
-      SELECT "id", "name"
-      FROM "Tense"
-      WHERE "name" = ${trimmedTense}
-      LIMIT 1;
-    `;
-    const tenseRow = tenseRows[0];
+    const tenseRow = await findTenseByName(trimmedTense);
 
     if (!tenseRow) {
       return res.status(404).json({ message: 'Tense not found.' });
     }
-
-    const verbNamesSql = Prisma.join(normalizedVerbs.map((name) => Prisma.sql`${name}`));
 
     let userId: string | null = null;
     if (shouldPersonalise) {
@@ -174,108 +153,15 @@ combinationsRouter.post('/generate', async (req: Request<unknown, unknown, Gener
 
       if (claims && cognitoSub) {
         const provider = resolveAuthProvider(claims);
-        const user = await prisma.user.findFirst({
-          where: provider === 'google'
-            ? { googleCognitoSub: cognitoSub }
-            : { registryCognitoSub: cognitoSub },
-          select: { id: true },
-        });
-
-        userId = user?.id ?? null;
+        userId = await findUserIdByProviderSub(provider, cognitoSub);
       }
     }
 
     const items = userId
-      ? await prisma.$queryRaw<CombinationRow[]>`
-          WITH practice_stats AS (
-            SELECT
-              p."verb_id",
-              p."tense_id",
-              p."subject_id",
-              COUNT(*) FILTER (WHERE p."success" = true)::int AS "success_count",
-              COUNT(*) FILTER (WHERE p."success" = false)::int AS "failure_count"
-            FROM "Practice" p
-            WHERE p."user_id" = ${userId}
-            GROUP BY p."verb_id", p."tense_id", p."subject_id"
-          ),
-          eligible AS (
-            SELECT
-              v."name" AS "verb",
-              s."name" AS "subject",
-              c."text" AS "conjuguatedVerbWithSubject",
-              ctx."text" AS "phraseToShow",
-              ${tenseRow.name} AS "tense"
-            FROM "Verb" v
-            JOIN "Conjugation" c
-              ON c."verb_id" = v."id"
-             AND c."tense_id" = ${tenseRow.id}::uuid
-            JOIN "Subject" s ON s."id" = c."subject_id"
-            JOIN LATERAL (
-              SELECT c2."text"
-              FROM "Context" c2
-              WHERE c2."verb_id" = v."id"
-              ORDER BY random()
-              LIMIT 1
-            ) ctx ON true
-            LEFT JOIN practice_stats ps
-              ON ps."verb_id" = c."verb_id"
-             AND ps."tense_id" = c."tense_id"
-             AND ps."subject_id" = c."subject_id"
-            WHERE v."name" IN (${verbNamesSql})
-              AND (ps."verb_id" IS NULL OR ps."success_count" < ps."failure_count")
-          ),
-          ranked AS (
-            SELECT
-              e."verb",
-              e."subject",
-              e."conjuguatedVerbWithSubject",
-              e."phraseToShow",
-              e."tense",
-              ROW_NUMBER() OVER (PARTITION BY e."verb" ORDER BY random()) AS "row_num"
-            FROM eligible e
-          )
-          SELECT
-            r."verb",
-            r."subject",
-            r."conjuguatedVerbWithSubject",
-            r."phraseToShow",
-            r."tense"
-          FROM ranked r
-          WHERE r."row_num" = 1;
-        `
-      : await prisma.$queryRaw<CombinationRow[]>`
-          SELECT
-            v."name" AS "verb",
-            s."name" AS "subject",
-            conj."text" AS "conjuguatedVerbWithSubject",
-            ctx."text" AS "phraseToShow",
-            ${tenseRow.name} AS "tense"
-          FROM "Verb" v
-          JOIN LATERAL (
-            SELECT c."subject_id", c."text"
-            FROM "Conjugation" c
-            WHERE c."verb_id" = v."id"
-              AND c."tense_id" = ${tenseRow.id}::uuid
-            ORDER BY random()
-            LIMIT 1
-          ) conj ON true
-          JOIN "Subject" s ON s."id" = conj."subject_id"
-          JOIN LATERAL (
-            SELECT c2."text"
-            FROM "Context" c2
-            WHERE c2."verb_id" = v."id"
-            ORDER BY random()
-            LIMIT 1
-          ) ctx ON true
-          WHERE v."name" IN (${verbNamesSql});
-        `;
+      ? await findPersonalisedCombinationsByTenseAndVerbs(tenseRow, normalizedVerbs, userId)
+      : await findCombinationsByTenseAndVerbs(tenseRow, normalizedVerbs);
 
-    const timeMarkers = await prisma.$queryRaw<TimeMarkerRow[]>`
-      SELECT "text", "placement"
-      FROM "TimeMarker"
-      WHERE "tense_id" = ${tenseRow.id}::uuid
-        AND "placement" IN ('beginningOfSentence', 'endOfSentence');
-    `;
+    const timeMarkers = await findTimeMarkersByTenseId(tenseRow.id);
 
     const normalizedItems = items.map((item) => {
       const phraseWithOptionalMarker =

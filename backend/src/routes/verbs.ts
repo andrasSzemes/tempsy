@@ -1,30 +1,12 @@
 import { Router, Request, Response } from 'express';
-import prisma from '../lib/prisma.js';
-
-type VerbRow = {
-  name: string;
-};
-
-type TenseRow = {
-  name: string;
-};
-
-type IrregularRow = {
-  tense: string;
-  verb: string;
-};
+import { listTenseNames } from '../repositories/tensesRepository.js';
+import { listIrregularRows, listVerbNames } from '../repositories/verbsRepository.js';
 
 const verbsRouter = Router();
 
 verbsRouter.get('/tense', async (_req: Request, res: Response) => {
   try {
-    const rows = await prisma.$queryRaw<TenseRow[]>`
-      SELECT "name"
-      FROM "Tense"
-      ORDER BY "name" ASC;
-    `;
-
-    const tenses = rows.map((row) => row.name);
+    const tenses = await listTenseNames();
     return res.status(200).json({ tenses });
   } catch (error) {
     return res.status(500).json({
@@ -36,15 +18,7 @@ verbsRouter.get('/tense', async (_req: Request, res: Response) => {
 
 verbsRouter.get('/irregular', async (_req: Request, res: Response) => {
   try {
-    const rows = await prisma.$queryRaw<IrregularRow[]>`
-      SELECT
-        t."name" AS "tense",
-        v."name" AS "verb"
-      FROM "Irregular" i
-      JOIN "Verb" v ON v."id" = i."verb_id"
-      JOIN "Tense" t ON t."id" = i."tense_id"
-      ORDER BY t."name" ASC, v."name" ASC;
-    `;
+    const rows = await listIrregularRows();
 
     const irregularByTense: Record<string, string[]> = {};
 
@@ -66,13 +40,7 @@ verbsRouter.get('/irregular', async (_req: Request, res: Response) => {
 
 verbsRouter.get('/', async (_req: Request, res: Response) => {
   try {
-    const rows = await prisma.$queryRaw<VerbRow[]>`
-      SELECT "name"
-      FROM "Verb"
-      ORDER BY "name" ASC;
-    `;
-
-    const verbs = rows.map((row) => row.name);
+    const verbs = await listVerbNames();
     return res.status(200).json({ verbs });
   } catch (error) {
     return res.status(500).json({

@@ -1,5 +1,14 @@
 import { Router, Request, Response } from 'express';
-import prisma from '../lib/prisma.js';
+import {
+  createPracticeEntry,
+  getPracticeStatisticsData,
+  resolvePracticeIds,
+} from '../repositories/practiceRepository.js';
+import {
+  findUserIdByProviderSub,
+  findUserIdentityByProviderSub,
+  type AuthProvider,
+} from '../repositories/usersRepository.js';
 import type { TokenClaims } from '../types/TokenClaims.js';
 
 type PracticeRequestBody = {
@@ -65,7 +74,7 @@ function decodeJwtPayload(token: string): TokenClaims | null {
   }
 }
 
-function resolveAuthProvider(claims: TokenClaims): 'registry' | 'google' {
+function resolveAuthProvider(claims: TokenClaims): AuthProvider {
   if (!Array.isArray(claims.identities)) {
     return 'registry';
   }
@@ -114,12 +123,7 @@ practiceRouter.get('/statistics', async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await prisma.user.findFirst({
-      where: provider === 'google'
-        ? { googleCognitoSub: cognitoSub }
-        : { registryCognitoSub: cognitoSub },
-      select: { id: true, createdAt: true },
-    });
+    const user = await findUserIdentityByProviderSub(provider, cognitoSub);
 
     if (!user) {
       return res.status(404).json({ message: 'User was not found.' });
@@ -143,42 +147,11 @@ practiceRouter.get('/statistics', async (req: Request, res: Response) => {
     const selectedMonthStart = new Date(Date.UTC(selectedYear, selectedMonthIndex, 1));
     const nextMonthStart = new Date(Date.UTC(selectedYear, selectedMonthIndex + 1, 1));
 
-    const [monthlyTotalRows, allTimeTotalRows, dailyRows, tenseRows] = await Promise.all([
-      prisma.$queryRaw<Array<{ count: number }>>`
-        SELECT COUNT(*)::int AS "count"
-        FROM "Practice"
-        WHERE "user_id" = ${user.id}
-          AND "created_at" >= ${selectedMonthStart}
-          AND "created_at" < ${nextMonthStart};
-      `,
-      prisma.$queryRaw<Array<{ count: number }>>`
-        SELECT COUNT(*)::int AS "count"
-        FROM "Practice"
-        WHERE "user_id" = ${user.id};
-      `,
-      prisma.$queryRaw<Array<{ day: string; count: number }>>`
-        SELECT TO_CHAR(("created_at" AT TIME ZONE 'Europe/Budapest')::date, 'YYYY-MM-DD') AS "day", COUNT(*)::int AS "count"
-        FROM "Practice"
-        WHERE "user_id" = ${user.id}
-          AND "created_at" >= ${selectedMonthStart}
-          AND "created_at" < ${nextMonthStart}
-        GROUP BY 1
-        ORDER BY 1 ASC;
-      `,
-      prisma.$queryRaw<Array<{ tense: string; count: number }>>`
-        SELECT t."name" AS "tense", COUNT(*)::int AS "count"
-        FROM "Practice" p
-        INNER JOIN "Tense" t ON t."id" = p."tense_id"
-        WHERE p."user_id" = ${user.id}
-          AND p."created_at" >= ${selectedMonthStart}
-          AND p."created_at" < ${nextMonthStart}
-        GROUP BY t."name"
-        ORDER BY "count" DESC, t."name" ASC;
-      `,
-    ]);
-
-    const monthlyTotal = Number(monthlyTotalRows[0]?.count ?? 0);
-    const allTimeTotal = Number(allTimeTotalRows[0]?.count ?? 0);
+    const { monthlyTotal, allTimeTotal, dailyRows, tenseRows } = await getPracticeStatisticsData(
+      user.id,
+      selectedMonthStart,
+      nextMonthStart,
+    );
 
     const dailyCounts = dailyRows.map((row: { day: string; count: number }) => ({
       date: row.day,
@@ -262,31 +235,19 @@ practiceRouter.post('/', async (req: Request<unknown, unknown, PracticeRequestBo
   const provider = resolveAuthProvider(claims);
 
   try {
-    const user = await prisma.user.findFirst({
-      where: provider === 'google'
-        ? { googleCognitoSub: cognitoSub }
-        : { registryCognitoSub: cognitoSub },
-      select: { id: true },
-    });
+    const userId = await findUserIdByProviderSub(provider, cognitoSub);
 
-    if (!user) {
+    if (!userId) {
       return res.status(202).json({ processed: false, reason: 'unknown-user' });
     }
 
-    const [verbRow, tenseRow, subjectRow] = await Promise.all([
-      prisma.verb.findFirst({ where: { name: verb }, select: { id: true } }),
-      prisma.tense.findFirst({ where: { name: tense }, select: { id: true } }),
-      prisma.subject.findFirst({ where: { name: subject }, select: { id: true } }),
-    ]);
+    const resolvedIds = await resolvePracticeIds(verb, tense, subject);
 
-    if (!verbRow || !tenseRow || !subjectRow) {
+    if (!resolvedIds) {
       return res.status(400).json({ message: 'Could not resolve verb/tense/subject IDs.' });
     }
 
-    await prisma.$executeRaw`
-      INSERT INTO "Practice" ("user_id", "verb_id", "tense_id", "subject_id", "success")
-      VALUES (${user.id}, ${verbRow.id}::uuid, ${tenseRow.id}::uuid, ${subjectRow.id}::uuid, ${success});
-    `;
+    await createPracticeEntry(userId, resolvedIds, success);
 
     return res.status(201).json({ processed: true });
   } catch (error) {

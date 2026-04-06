@@ -1,8 +1,12 @@
 import { Router, Request, Response } from 'express';
-import { randomUUID } from 'node:crypto';
-import prisma from '../lib/prisma.js';
 import type { User } from '../types/User.js';
 import type { TokenClaims } from '../types/TokenClaims.js';
+import {
+  countUsers,
+  upsertUserByClaims,
+  userExistsByIdentifier,
+  type AuthProvider,
+} from '../repositories/usersRepository.js';
 
 function extractBearerToken(req: { header(name: string): string | undefined }): string | null {
   const authHeader = req.header('authorization');
@@ -34,7 +38,7 @@ function decodeJwtPayload(token: string): TokenClaims | null {
   }
 }
 
-function resolveAuthProvider(claims: TokenClaims): 'registry' | 'google' {
+function resolveAuthProvider(claims: TokenClaims): AuthProvider {
   if (!Array.isArray(claims.identities)) {
     return 'registry';
   }
@@ -56,7 +60,7 @@ const usersRouter = Router();
 
 usersRouter.get('/count', async (_req: Request, res: Response) => {
   try {
-    const count = await prisma.user.count();
+    const count = await countUsers();
     res.json({ count });
   } catch (error) {
     res.status(500).json({
@@ -74,17 +78,8 @@ usersRouter.head('/:identifier', async (req: Request<{ identifier: string }>, re
   }
 
   try {
-    const rows = await prisma.$queryRaw<Array<{ exists: boolean }>>`
-      SELECT EXISTS(
-        SELECT 1
-        FROM "User"
-        WHERE "id" = ${identifier}
-           OR "registryCognitoSub" = ${identifier}
-           OR "googleCognitoSub" = ${identifier}
-      ) AS "exists";
-    `;
-
-    return res.sendStatus(rows[0]?.exists === true ? 204 : 404);
+    const exists = await userExistsByIdentifier(identifier);
+    return res.sendStatus(exists ? 204 : 404);
   } catch (error) {
     return res.sendStatus(500);
   }
@@ -122,50 +117,7 @@ usersRouter.post('/', async (req: Request<unknown, unknown, Partial<User>>, res:
   const resolvedName = typeof nameFromBody === 'string' ? nameFromBody : name ?? null;
 
   try {
-    const generatedId = randomUUID();
-    const rows = await prisma.$queryRaw<
-      Array<{
-        id: string;
-        registryCognitoSub: string | null;
-        googleCognitoSub: string | null;
-        email: string;
-        name: string | null;
-        createdAt: Date;
-      }>
-    >`
-      WITH existing AS (
-        SELECT "id"
-        FROM "User"
-        WHERE (CASE WHEN ${provider} = 'registry' THEN "registryCognitoSub" ELSE "googleCognitoSub" END) = ${cognitoSub}
-           OR "email" = ${email}
-        LIMIT 1
-      ),
-      updated AS (
-        UPDATE "User"
-        SET "registryCognitoSub" = CASE WHEN ${provider} = 'registry' THEN ${cognitoSub} ELSE "registryCognitoSub" END,
-            "googleCognitoSub" = CASE WHEN ${provider} = 'google' THEN ${cognitoSub} ELSE "googleCognitoSub" END,
-            "email" = ${email},
-            "name" = ${resolvedName}
-        WHERE "id" IN (SELECT "id" FROM existing)
-        RETURNING "id", "registryCognitoSub", "googleCognitoSub", "email", "name", "createdAt"
-      ),
-      inserted AS (
-        INSERT INTO "User" ("id", "registryCognitoSub", "googleCognitoSub", "email", "name")
-        SELECT
-          ${generatedId},
-          CASE WHEN ${provider} = 'registry' THEN ${cognitoSub} ELSE NULL END,
-          CASE WHEN ${provider} = 'google' THEN ${cognitoSub} ELSE NULL END,
-          ${email},
-          ${resolvedName}
-        WHERE NOT EXISTS (SELECT 1 FROM existing)
-        RETURNING "id", "registryCognitoSub", "googleCognitoSub", "email", "name", "createdAt"
-      )
-      SELECT * FROM updated
-      UNION ALL
-      SELECT * FROM inserted;
-    `;
-
-    const user = rows[0];
+    const user = await upsertUserByClaims(provider, cognitoSub, email, resolvedName);
 
     return res.status(200).json({ user });
   } catch (error) {
