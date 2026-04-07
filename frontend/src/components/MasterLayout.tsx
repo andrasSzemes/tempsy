@@ -37,7 +37,21 @@ const AppBar = styled.aside`
   flex-direction: column;
   align-items: center;
   padding: 10px 0;
-  gap: 10px;
+`;
+
+const TopModeSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+`;
+
+const CenterActionSection = styled.div`
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const iconBaseStyles = css`
@@ -69,6 +83,29 @@ const IconAnchor = styled.a`
   ${iconBaseStyles}
 `;
 
+const IconBadgeWrap = styled.span`
+  position: relative;
+  display: inline-flex;
+`;
+
+const CornerStep = styled.span`
+  position: absolute;
+  right: -6px;
+  bottom: -8px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  // border-radius: 999px;
+  // background: #d1b48ce7;
+  color: #ffffff;
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 700;
+  text-align: center;
+  // box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.9);
+`;
+
 const IconGroup = styled.div<{ $active?: boolean }>`
   display: flex;
   flex-direction: column;
@@ -80,17 +117,26 @@ const IconGroup = styled.div<{ $active?: boolean }>`
   gap: 8px;
 `;
 
+const ActionGroup = styled.div<{ $active?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: ${({ $active }) => $active ? '1px solid #87878744' : 'none'};
+  border-radius: 6px;
+  padding: 4px;
+`;
+
 const Main = styled.main`
   flex: 1;
   overflow: auto;
 `;
 
 const BottomAction = styled.div`
-  margin-top: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  margin-bottom: 4px;
 `;
 
 const ActionLabel = styled.span`
@@ -299,14 +345,47 @@ function MasterLayout() {
     <LayoutContainer>
       {flashMessage && <FlashMessage>{flashMessage}</FlashMessage>}
       <AppBar>
-        <IconGroup $active={isSetupActive}>
-          {!isSetupActive && (
+        <TopModeSection>
+          <IconGroup>
             <IconLink to="/" end>
-              <PostAddIcon />
+              <IconBadgeWrap>
+                <PostAddIcon sx={{ fontSize: 30 }} />
+                <CornerStep>1</CornerStep>
+              </IconBadgeWrap>
             </IconLink>
-          )}
+          </IconGroup>
+          <ActionLabel style={{ marginTop: '0px' }}>Setup</ActionLabel>
+
+          <IconGroup>
+            {isPracticeEnabled ? (
+              <IconLink to="/study">
+                <IconBadgeWrap>
+                  <FitnessCenterIcon sx={{ fontSize: 30 }} />
+                  <CornerStep>2</CornerStep>
+                </IconBadgeWrap>
+              </IconLink>
+            ) : (
+              <IconAnchor
+                href="#"
+                aria-label="Practice disabled"
+                aria-disabled="true"
+                onClick={e => e.preventDefault()}
+                style={{ pointerEvents: 'none', opacity: 0.5 }}
+                title="Add at least one item to the task list"
+              >
+                <IconBadgeWrap>
+                  <FitnessCenterIcon sx={{ color: '#888', cursor: 'not-allowed', fontSize: 30 }} />
+                  <CornerStep>2</CornerStep>
+                </IconBadgeWrap>
+              </IconAnchor>
+            )}
+          </IconGroup>
+          <ActionLabel style={{ color: isPracticeEnabled ? 'rgba(255, 255, 255, 0.75)' : '#888' }}>Practice</ActionLabel>
+        </TopModeSection>
+
+        <CenterActionSection>
           {isSetupActive && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <ActionGroup $active={isSetupActive}>
               {isLoggedIn && (
                 <>
                   <div style={{ marginTop: '0px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -345,13 +424,13 @@ function MasterLayout() {
               )}
               <IconAnchor
                 href="#"
-                aria-label="Újrakezdés setup"
+                aria-label="Restart setup"
                 onClick={e => {
                   e.preventDefault();
                   if (!isSetupRestartEnabled) return;
                   emptyTaskList();
                 }}
-                title="Újrakezdés"
+                title="Restart"
                 style={{ pointerEvents: isSetupRestartEnabled ? 'auto' : 'none' }}
               >
                 <RestartAltIcon sx={{ color: isSetupRestartEnabled ? '#ffffff' : '#888', cursor: isSetupRestartEnabled ? 'pointer' : 'not-allowed' }} />
@@ -400,40 +479,20 @@ function MasterLayout() {
                   void handleImportTaskList(e);
                 }}
               />
-            </div>
+            </ActionGroup>
           )}
-        </IconGroup>
-        <ActionLabel style={{marginTop: '0px'}}>Setup</ActionLabel>
-        <IconGroup $active={isPracticeEnabled && location.pathname === '/study'}>
-          {location.pathname !== '/study' && (
-            isPracticeEnabled ? (
-              <IconLink to="/study">
-                <FitnessCenterIcon />
-              </IconLink>
-            ) : (
-              <IconAnchor
-                href="#"
-                aria-label="Practice disabled"
-                aria-disabled="true"
-                onClick={e => e.preventDefault()}
-                style={{ pointerEvents: 'none', opacity: 0.5 }}
-                title="Adj hozzá legalább egy elemet a taskList-hez"
-              >
-                <FitnessCenterIcon sx={{ color: '#888', cursor: 'not-allowed' }} />
-              </IconAnchor>
-            )
-          )}
+
           {location.pathname === '/study' && taskList.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '0px' }}>
+            <ActionGroup $active={location.pathname === '/study'} style={{ marginTop: '0px' }}>
               <IconAnchor
                 href="#"
-                aria-label="Újrakezdés"
+                aria-label="Reset task list"
                 onClick={e => {
                   e.preventDefault();
                   if (!isTaskListResetable) return;
                   resetTaskList();
                 }}
-                title="Újrakezdés"
+                title="Reset task list"
                 style={{ pointerEvents: isTaskListResetable ? 'auto' : 'none' }}
               >
                 <RestartAltIcon sx={{ color: isTaskListResetable ? '#ffffff' : '#888', cursor: isTaskListResetable ? 'pointer' : 'not-allowed' }} />
@@ -473,10 +532,10 @@ function MasterLayout() {
                 </IconAnchor>
                 <ActionLabel style={{ marginTop: '3px', color: isSummaryEnabled ? 'rgba(255,255,255,0.75)' : '#888' }}>Missed</ActionLabel>
               </div>
-            </div>
+            </ActionGroup>
           )}
-        </IconGroup>
-        <ActionLabel style={{ color: isPracticeEnabled ? 'rgba(255, 255, 255, 0.75)' : '#888' }}>Practice</ActionLabel>
+        </CenterActionSection>
+
         {hasCognitoSetup && (
           <BottomAction>
             {isLoggedIn && (

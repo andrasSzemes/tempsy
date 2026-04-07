@@ -1,6 +1,6 @@
-import { useState } from "react";
 import styled from 'styled-components';
 import { useVerbs } from "../contexts/useVerbs";
+import { useUser } from '../contexts/useUser';
 import VerbSelector from "./verbSelector/VerbSelector";
 import PhraseExercise from "./PhraseExercise";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -19,6 +19,7 @@ const Add = styled.div`
   font-style: italic;
   padding: 16px 27px;
   background-color: #242424;
+  font-size: 14px;
 
   &:hover {
     background-color: #3a3a3a;
@@ -69,6 +70,45 @@ const NoVerbsMessage = styled.div`
   color: #fff;
   margin: auto;
   user-select: none;
+  width: 100%;
+  max-width: 920px;
+`;
+
+const EmptyStateGrid = styled.div`
+  display: flex;
+  gap: 18px;
+  align-items: stretch;
+  justify-content: center;
+  flex-wrap: wrap;
+`;
+
+const InfoCard = styled.div`
+  flex: 1 1 320px;
+  max-width: 430px;
+  min-height: 250px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(209, 180, 140, 0.45);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+`;
+
+const CardTitle = styled.div`
+  color: #f3d7ac;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+`;
+
+const CardBody = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
 
 const Container = styled.div`
@@ -116,7 +156,8 @@ const TaskRowInner = styled.div`
 `;
 
 function Setup() {
-    const { availableVerbs, addSelectedVerbs, taskList, removeTask } = useVerbs();
+  const { availableVerbs, addSelectedVerbs, taskList, removeTask } = useVerbs();
+  const { isLoggedIn } = useUser();
 
     return (
       <Container>
@@ -150,7 +191,46 @@ function Setup() {
             ))
           ) : (
             <NoVerbsMessage>
-              Select verbs to practice from the selector on the left.
+              <EmptyStateGrid>
+                <InfoCard>
+                  <CardTitle>1. SETUP</CardTitle>
+                  <CardBody>
+                    Select tense
+                    <br />
+                    <span style={{ fontStyle: 'italic', fontSize: 13 }}>- Passe Compose, Present, ... -</span>
+                    {isLoggedIn && (
+                      <>
+                        <br />
+                        <span>Choose <b><i>Tailored</i></b> mode to practice only</span>
+                        not reviewed or not mastered conjugations
+                        <br />
+                      </>
+                    )}
+                    <br />
+                    Select verbs
+                    <br />
+                    <br />
+                    Click on the arrow
+                    <br />
+                    to add them to the task list
+                  </CardBody>
+                </InfoCard>
+
+                <InfoCard>
+                  <CardTitle>2. PRACTICE</CardTitle>
+                  <CardBody>
+                    Click on the left side on "Practice" to start learning.
+                    <br />
+                    <br />
+                    You will have three chances to try each conjugation,
+                    <br />
+                    then the correct answer will be shown.
+                    <br />
+                    <br />
+                    Good luck!
+                  </CardBody>
+                </InfoCard>
+              </EmptyStateGrid>
             </NoVerbsMessage>
           )}
         </MainContent>
