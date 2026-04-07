@@ -219,8 +219,7 @@ function Setup() {
                 <InfoCard>
                   <CardTitle>2. PRACTICE</CardTitle>
                   <CardBody>
-                    Click on the left side on "Practice" to start learning.
-                    <br />
+                    <span>Click on the left side on <b><i>Practice</i></b> to start learning.</span>
                     <br />
                     You will have three chances to try each conjugation,
                     <br />
