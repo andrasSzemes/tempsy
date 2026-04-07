@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useVerbs } from "../contexts/useVerbs";
 import PhraseExercise from "./PhraseExercise";
@@ -97,14 +97,27 @@ const ProgressLabel = styled.div`
 function Study() {
   const { availableVerbs, taskList } = useVerbs();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const previousResettableTaskCountRef = useRef<number | null>(null);
   const correctTaskCount = taskList.filter((task) => task.isRight === true).length;
   const wrongTaskCount = taskList.filter((task) => task.isRight === false).length;
+  const resettableTaskCount = taskList.filter((task) => task.numOfTentatives !== 0 || task.isRight !== null).length;
   const solvedTaskCount = correctTaskCount + wrongTaskCount;
   const solvedPercent = taskList.length > 0 ? (solvedTaskCount / taskList.length) * 100 : 0;
   const wrongPercent = taskList.length > 0 ? (wrongTaskCount / taskList.length) * 100 : 0;
   const correctPercent = taskList.length > 0 ? (correctTaskCount / taskList.length) * 100 : 0;
   const wrongPercentWithinSolved = solvedTaskCount > 0 ? (wrongTaskCount / solvedTaskCount) * 100 : 0;
   const correctPercentWithinSolved = solvedTaskCount > 0 ? (correctTaskCount / solvedTaskCount) * 100 : 0;
+
+  useEffect(() => {
+    const previousResettableTaskCount = previousResettableTaskCountRef.current;
+    const wasRestarted = previousResettableTaskCount !== null && previousResettableTaskCount > 0 && resettableTaskCount === 0;
+
+    if (wasRestarted && taskList.length > 0) {
+      setSelectedTaskId(taskList[0].id);
+    }
+
+    previousResettableTaskCountRef.current = resettableTaskCount;
+  }, [resettableTaskCount, taskList]);
 
   useEffect(() => {
     const currentTask = taskList.find(task => task.id === selectedTaskId);
