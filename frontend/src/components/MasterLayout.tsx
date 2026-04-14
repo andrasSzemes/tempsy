@@ -289,8 +289,8 @@ function MasterLayout() {
     };
   };
 
-  const taskKey = (task: Pick<Combinaison, 'verb' | 'subject' | 'tense'>) =>
-    `${task.verb.trim().toLowerCase()}|${task.subject.trim().toLowerCase()}|${task.tense.trim().toLowerCase()}`;
+  const taskKey = (task: Pick<Combinaison, 'verb' | 'subject' | 'tense' | 'phraseToShow'>) =>
+    `${task.verb.trim().toLowerCase()}|${task.subject.trim().toLowerCase()}|${task.tense.trim().toLowerCase()}|${task.phraseToShow.trim().toLowerCase()}`;
 
   const handleImportTaskList = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

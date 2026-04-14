@@ -90,7 +90,7 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
     function importTasks(tasks: Combinaison[]) {
         setTaskList((prevTasks) => {
             const keyOf = (task: Combinaison) =>
-                `${task.verb.trim().toLowerCase()}|${task.subject.trim().toLowerCase()}|${task.tense.trim().toLowerCase()}`;
+                `${task.verb.trim().toLowerCase()}|${task.subject.trim().toLowerCase()}|${task.tense.trim().toLowerCase()}|${task.phraseToShow.trim().toLowerCase()}`;
 
             const existingKeys = new Set(prevTasks.map(keyOf));
             const toAdd: Combinaison[] = [];
