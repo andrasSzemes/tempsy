@@ -6,6 +6,7 @@ import { useUserClient } from './clientProviders/useUserClient';
 
 type UserContextType = {
   isLoggedIn: boolean;
+  userEmail: string | null;
   login: () => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -15,6 +16,14 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const userClient = useUserClient();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  const extractUserEmail = async (): Promise<string | null> => {
+    const session = await fetchAuthSession();
+    const payload = session.tokens?.idToken?.payload;
+    const emailValue = payload?.email;
+    return typeof emailValue === 'string' ? emailValue : null;
+  };
 
   const logTokensInDev = async (): Promise<void> => {
     if (!import.meta.env.DEV) {
@@ -64,9 +73,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const checkAuth = async () => {
       try {
         await getCurrentUser();
+        const email = await extractUserEmail();
         await logTokensInDev();
         if (isMounted) {
           setIsLoggedIn(true);
+          setUserEmail(email);
         }
         try {
           await ensureCurrentUserExists();
@@ -77,6 +88,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       } catch {
         if (isMounted) {
           setIsLoggedIn(false);
+          setUserEmail(null);
         }
       }
     };
@@ -95,7 +107,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       await getCurrentUser();
+      const email = await extractUserEmail();
       setIsLoggedIn(true);
+      setUserEmail(email);
       return;
     } catch {
       // Continue to hosted UI redirect when there is no active user.
@@ -111,7 +125,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         error.name === 'UserAlreadyAuthenticatedException';
 
       if (isAlreadyAuthenticated) {
+        const email = await extractUserEmail();
         setIsLoggedIn(true);
+        setUserEmail(email);
         return;
       }
 
@@ -125,9 +141,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
     await signOut();
     setIsLoggedIn(false);
+    setUserEmail(null);
   };
 
-  return <UserContext.Provider value={{ isLoggedIn, login, logout }}>{children}</UserContext.Provider>;
+  return <UserContext.Provider value={{ isLoggedIn, userEmail, login, logout }}>{children}</UserContext.Provider>;
 };
 
 export const useUser = () => {

@@ -29,6 +29,14 @@ const Page = styled.div`
   color: #f4eee7;
 `;
 
+const UserEmailBar = styled.div`
+  margin-bottom: 16px;
+  text-align: center;
+  color: rgba(244, 238, 231, 0.9);
+  font-size: 0.98rem;
+  font-weight: 600;
+`;
+
 const EmptyStateContainer = styled.div`
   min-height: calc(100vh - 48px);
   display: flex;
@@ -331,7 +339,7 @@ function buildDonutGradient(slices: TenseSlice[]): string {
 }
 
 function Statistics() {
-  const { isLoggedIn } = useUser();
+  const { isLoggedIn, userEmail } = useUser();
   const practiceClient = usePracticeClient();
 
   const [selection, setSelection] = useState<MonthSelection>(() => {
@@ -459,6 +467,9 @@ function Statistics() {
 
   return (
     <Page>
+      <UserEmailBar>
+        Logged in as {userEmail ?? 'unknown email'}
+      </UserEmailBar>
       <DashboardGrid>
         <LeftColumn>
           <Card style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
