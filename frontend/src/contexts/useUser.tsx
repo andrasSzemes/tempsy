@@ -13,6 +13,19 @@ type UserContextType = {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
+const hasOAuthCodeInUrl = (): boolean => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  const params = new URLSearchParams(window.location.search);
+  return params.has('code');
+};
+
+const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const userClient = useUserClient();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -72,7 +85,27 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     const checkAuth = async () => {
       try {
-        await getCurrentUser();
+        const waitingForOAuthCallback = hasOAuthCodeInUrl();
+        const maxAttempts = waitingForOAuthCallback ? 8 : 1;
+        let authenticated = false;
+
+        for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+          try {
+            await getCurrentUser();
+            authenticated = true;
+            break;
+          } catch {
+            if (!waitingForOAuthCallback || attempt === maxAttempts - 1) {
+              throw new Error('Unable to resolve authenticated user.');
+            }
+            await sleep(300);
+          }
+        }
+
+        if (!authenticated) {
+          throw new Error('Unable to resolve authenticated user.');
+        }
+
         const email = await extractUserEmail();
         await logTokensInDev();
         if (isMounted) {

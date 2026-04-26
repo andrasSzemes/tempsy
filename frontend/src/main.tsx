@@ -3,8 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material'
 import './index.css'
 import App from './App.tsx'
-import './auth/amplify'
 import 'aws-amplify/auth/enable-oauth-listener'
+import './auth/amplify'
 
 function AppWrapper() {
   const theme = useMemo(
