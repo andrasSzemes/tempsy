@@ -16,7 +16,7 @@ function ensureDatabaseUrlFromAwsSecrets(): void {
       process.env.DATABASE_URL = parsed.DATABASE_URL;
     }
   } catch {
-    // Keep startup resilient if AWS_SECRETS is not valid JSON.
+    // Keep startup resilient if AWS_SECRETS is not valid JSON
   }
 }
 

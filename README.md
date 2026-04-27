@@ -75,3 +75,14 @@ export default tseslint.config({
   },
 })
 ```
+
+Search words:
+
+1. francia nyelv
+2. nyelvgyakorlás
+3. mondatgenerálás
+4. adaptív tanulás
+
+Short:
+
+A szakdolgozat egy francia nyelv gyakorlását támogató webalkalmazás tervezését és megvalósítását mutatja be. A rendszer személyre szabott feladatokkal, automatikus mondatgenerálással és azonnali visszajelzéssel segíti az igeragozás és annak kontextusban történő használatának elsajátítását. A dolgozat bemutatja az alkalmazás architektúráját, adatmodelljét, a fejlesztés fő döntéseit, valamint a tesztelés és továbbfejlesztés lehetőségeit.
