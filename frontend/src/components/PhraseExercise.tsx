@@ -156,13 +156,6 @@ function PhraseExercise({
     };
   }, [isInputShaking]);
 
-  // useEffect(() => {
-  //   if (numOfTentatives >= 3 && inputRef.current) {
-  //     inputRef.current.value = conjuguatedVerbWithSubject;
-  //     if (taskId) updateTaskIsRight(taskId, true);
-  //   }
-  // }, [numOfTentatives, conjuguatedVerbWithSubject, taskId, updateTaskIsRight]);
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && inputRef.current) {
       if (inputRef.current.value.length > 0) {
@@ -173,19 +166,6 @@ function PhraseExercise({
             updateTaskIsRight(taskId, true);
             sendPracticeResult(true);
           }
-          setTimeout(() => {
-            // nextCombinaison();
-            // TODO CHECK IF WORKS
-
-
-            // if (taskId) {
-            //   updateTaskIsRight(taskId, null);
-            //   updateTaskAttempts(taskId, 0);
-            // }
-            // if (inputRef?.current) {
-            //   inputRef.current.value = '';
-            // }
-          }, 1000);
         } else {
           triggerInputShake();
           if (taskId) {

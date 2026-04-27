@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { fetchCombinaisons, type Combinaison } from "../services/combinaisonService";
 import { useLanguage } from "./useLanguage";
 
-// Define the shape of the verbs context
 interface VerbsContextType {
     checkedVerbs: { [verb: string]: boolean };
     availableVerbs: string[];
@@ -27,10 +26,8 @@ interface VerbsContextType {
     updateTaskIsRight: (taskId: string, isRight: boolean | null) => void;
 }
 
-// Create the context with a default value
 const VerbsContext = createContext<VerbsContextType | undefined>(undefined);
 
-// Provider component
 export const VerbsProvider = ({ children }: { children: ReactNode }) => {
     const { allVerbs, allTenses, irregularByTense } = useLanguage();
 
@@ -140,11 +137,9 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
 
     const forceSelectVerbList = (verbs: string[]) => {
         setCheckedVerbs((prev) => {
-            // Set all verbs to false
             const updated = Object.fromEntries(
                 allVerbs.map((verb) => [verb, false])
             );
-            // Then set only the provided verbs to true
             verbs.forEach((v) => {
                 if (v in updated) updated[v] = true;
             });
@@ -202,7 +197,6 @@ export const VerbsProvider = ({ children }: { children: ReactNode }) => {
         );
 };
 
-// Custom hook to use the verbs context
 export const useVerbs = () => {
   const context = useContext(VerbsContext);
   if (!context) {

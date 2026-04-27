@@ -103,8 +103,6 @@ function Study() {
   const resettableTaskCount = taskList.filter((task) => task.numOfTentatives !== 0 || task.isRight !== null).length;
   const solvedTaskCount = correctTaskCount + wrongTaskCount;
   const solvedPercent = taskList.length > 0 ? (solvedTaskCount / taskList.length) * 100 : 0;
-  const wrongPercent = taskList.length > 0 ? (wrongTaskCount / taskList.length) * 100 : 0;
-  const correctPercent = taskList.length > 0 ? (correctTaskCount / taskList.length) * 100 : 0;
   const wrongPercentWithinSolved = solvedTaskCount > 0 ? (wrongTaskCount / solvedTaskCount) * 100 : 0;
   const correctPercentWithinSolved = solvedTaskCount > 0 ? (correctTaskCount / solvedTaskCount) * 100 : 0;
 

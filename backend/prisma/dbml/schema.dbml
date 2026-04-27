@@ -1,0 +1,115 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id String [pk]
+  registryCognitoSub String [unique]
+  googleCognitoSub String [unique]
+  email String [unique, not null]
+  name String
+  createdAt DateTime [default: `now()`, not null]
+  practices Practice [not null]
+}
+
+Table Verb {
+  id String [pk]
+  name String [not null]
+  contexts Context [not null]
+  conjugations Conjugation [not null]
+  irregulars Irregular [not null]
+  practices Practice [not null]
+}
+
+Table Tense {
+  id String [pk]
+  name String [not null]
+  conjugations Conjugation [not null]
+  irregulars Irregular [not null]
+  timeMarkers TimeMarker [not null]
+  practices Practice [not null]
+}
+
+Table Subject {
+  id String [pk]
+  name String [not null]
+  conjugations Conjugation [not null]
+  practices Practice [not null]
+}
+
+Table Practice {
+  id String [pk]
+  userId String [not null]
+  verbId String [not null]
+  tenseId String [not null]
+  subjectId String [not null]
+  success Boolean [not null]
+  createdAt DateTime [default: `now()`, not null]
+  user User [not null]
+  verb Verb [not null]
+  tense Tense [not null]
+  subject Subject [not null]
+}
+
+Table Context {
+  id String [pk]
+  verbId String [not null]
+  text String [not null]
+  verb Verb [not null]
+}
+
+Table Conjugation {
+  verbId String [not null]
+  subjectId String [not null]
+  tenseId String [not null]
+  text String [not null]
+  verb Verb [not null]
+  subject Subject [not null]
+  tense Tense [not null]
+
+  indexes {
+    (verbId, subjectId, tenseId) [pk]
+  }
+}
+
+Table Irregular {
+  id String [pk]
+  verbId String [not null]
+  tenseId String [not null]
+  verb Verb [not null]
+  tense Tense [not null]
+
+  indexes {
+    (verbId, tenseId) [unique]
+  }
+}
+
+Table TimeMarker {
+  id String [pk]
+  text String [not null]
+  placement String [not null]
+  tenseId String [not null]
+  tense Tense [not null]
+}
+
+Ref: Practice.userId > User.id [delete: Cascade]
+
+Ref: Practice.verbId > Verb.id [delete: Cascade]
+
+Ref: Practice.tenseId > Tense.id [delete: Cascade]
+
+Ref: Practice.subjectId > Subject.id [delete: Cascade]
+
+Ref: Context.verbId > Verb.id [delete: Cascade]
+
+Ref: Conjugation.verbId > Verb.id [delete: Cascade]
+
+Ref: Conjugation.subjectId > Subject.id [delete: Cascade]
+
+Ref: Conjugation.tenseId > Tense.id [delete: Cascade]
+
+Ref: Irregular.verbId > Verb.id [delete: Cascade]
+
+Ref: Irregular.tenseId > Tense.id [delete: Cascade]
+
+Ref: TimeMarker.tenseId > Tense.id [delete: Cascade]

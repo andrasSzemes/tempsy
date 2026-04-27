@@ -1,5 +1,8 @@
-import type { User } from '../types/User';
 import { fetchAuthSession } from 'aws-amplify/auth';
+
+type User = {
+  name?: string;
+};
 
 export class UserClient {
   private readonly baseUrl: string;
